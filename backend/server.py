@@ -54,10 +54,7 @@ async def login(request: SimpleLoginRequest, response: Response):
     result = await simple_login(request.username, request.password)
     
     # Create response and set cookie
-    json_response = JSONResponse(content={
-        "session_token": result["session_token"],
-        "user": result["user"].dict()
-    })
+    json_response = JSONResponse(content=result)
     create_session_cookie(json_response, result["session_token"])
     
     return json_response
