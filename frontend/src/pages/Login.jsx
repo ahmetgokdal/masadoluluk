@@ -1,61 +1,45 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Camera, TrendingUp, Users, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Camera, TrendingUp, Users, BarChart3, LogIn } from 'lucide-react';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
 import api from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // Check if user is already logged in
     const sessionToken = localStorage.getItem('session_token');
     if (sessionToken) {
       navigate('/dashboard');
-      return;
     }
+  }, [navigate]);
 
-    // Check for session_id in URL hash (from Google OAuth redirect)
-    const hash = location.hash;
-    if (hash && hash.includes('session_id=')) {
-      processSessionId(hash);
-    }
-  }, [navigate, location]);
-
-  const processSessionId = async (hash) => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
     setLoading(true);
-    try {
-      // Extract session_id from hash
-      const sessionId = hash.split('session_id=')[1]?.split('&')[0];
-      
-      if (!sessionId) {
-        throw new Error('No session ID found');
-      }
 
-      // Process session with backend
-      const response = await api.auth.processSession(sessionId);
-      const { session_token, ...userData } = response.data;
+    try {
+      const response = await api.auth.login(username, password);
+      const { session_token, user } = response.data;
 
       // Store session token and user data
       localStorage.setItem('session_token', session_token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('user', JSON.stringify(user));
 
-      // Clear hash and redirect to dashboard
-      window.location.hash = '';
+      // Redirect to dashboard
       navigate('/dashboard');
     } catch (error) {
-      console.error('Session processing error:', error);
-      alert('Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.');
+      console.error('Login error:', error);
+      setError('Kullanıcı adı veya şifre hatalı');
       setLoading(false);
     }
-  };
-
-  const handleLogin = () => {
-    // Redirect to Emergent Auth with login as redirect URL
-    // Login page will handle session_id and redirect to dashboard
-    const redirectUrl = `${window.location.origin}/login`;
-    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 
   return (
