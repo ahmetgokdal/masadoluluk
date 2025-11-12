@@ -218,23 +218,25 @@ const Dashboard = () => {
           </button>
           <button
             onClick={() => setFilterStatus('idle')}
+            title="Işık açık ama hareket yok (kısa mola)"
             className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 ${
               filterStatus === 'idle'
                 ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white shadow-lg'
                 : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
             }`}
           >
-            Boşta ({stats.idle_cabins})
+            🟡 Boşta ({stats.idle_cabins})
           </button>
           <button
             onClick={() => setFilterStatus('long_break')}
+            title="Işık kapalı veya uzun süredir hareket yok"
             className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 ${
               filterStatus === 'long_break'
                 ? 'bg-gradient-to-r from-orange-600 to-red-500 text-white shadow-lg'
                 : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
             }`}
           >
-            Uzun Mola ({stats.long_break_cabins})
+            🟠 Uzun Mola ({stats.long_break_cabins})
           </button>
           <button
             onClick={() => setFilterStatus('empty')}
