@@ -377,6 +377,108 @@ const Settings = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Camera Test Dialog */}
+      <Dialog open={testCamera !== null} onOpenChange={(open) => {
+        if (!open) {
+          setTestCamera(null);
+          setImageError(false);
+        }
+      }}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-800">
+              Kamera Test - Kabin {testCamera?.cabin_no}
+            </DialogTitle>
+          </DialogHeader>
+          {testCamera && (
+            <div className="mt-4">
+              <div className="mb-4 p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg">
+                <p className="text-sm text-gray-600"><strong>URL:</strong> {testCamera.camera_url}</p>
+                {testCamera.student_name && (
+                  <p className="text-sm text-gray-600 mt-1"><strong>Öğrenci:</strong> {testCamera.student_name}</p>
+                )}
+              </div>
+              
+              <div className="relative bg-gray-900 rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                {!imageError ? (
+                  <>
+                    <img
+                      key={testCamera.camera_url + Date.now()}
+                      src={`${testCamera.camera_url}?t=${Date.now()}`}
+                      alt={`Kabin ${testCamera.cabin_no} test görüntüsü`}
+                      className="w-full h-full object-cover"
+                      onError={() => setImageError(true)}
+                      onLoad={() => console.log('✅ Kamera test başarılı')}
+                    />
+                    <div className="absolute top-4 right-4">
+                      <div className="flex items-center gap-2 bg-green-600 bg-opacity-90 px-3 py-2 rounded-full">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                        <span className="text-white text-sm font-medium">TEST BAŞARILI</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-white p-8">
+                    <div className="mb-6 p-4 bg-red-600 rounded-full">
+                      <Camera className="h-12 w-12 text-white" />
+                    </div>
+                    <p className="text-xl font-bold text-red-400 mb-2">❌ TEST BAŞARISIZ</p>
+                    <p className="text-gray-400 mb-4 text-center">Kamera görüntüsü alınamadı</p>
+                    <div className="p-4 bg-gray-800 rounded-lg max-w-md text-left space-y-2">
+                      <p className="text-sm text-yellow-400">⚠️ Kontrol Listesi:</p>
+                      <ul className="text-xs text-gray-300 space-y-1 ml-4">
+                        <li>• ESP32-CAM açık mı?</li>
+                        <li>• WiFi bağlantısı var mı?</li>
+                        <li>• URL doğru mu? <span className="text-orange-400">{testCamera.camera_url}</span></li>
+                        <li>• Tarayıcıda URL'i test edin</li>
+                        <li>• IP adresi değişmiş olabilir</li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-4 flex justify-between items-center">
+                <div className="flex gap-2">
+                  {imageError ? (
+                    <Badge className="bg-red-100 text-red-700 border-0">
+                      Bağlantı Başarısız
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-green-100 text-green-700 border-0">
+                      Bağlantı Başarılı
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => {
+                      setImageError(false);
+                      // Force reload
+                      const img = document.querySelector(`img[alt*="Kabin ${testCamera.cabin_no} test"]`);
+                      if (img) img.src = `${testCamera.camera_url}?t=${Date.now()}`;
+                    }}
+                    className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    Tekrar Test Et
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      window.open(testCamera.camera_url, '_blank');
+                    }}
+                    variant="outline"
+                    className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                  >
+                    Tarayıcıda Aç
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
