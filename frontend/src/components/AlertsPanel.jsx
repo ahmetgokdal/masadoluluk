@@ -50,10 +50,12 @@ const AlertsPanel = ({ alerts }) => {
                       Kabin {alert.cabin_no} {alert.student_name && `- ${alert.student_name}`}
                     </h4>
                     <span className="text-xs text-gray-500">
-                      {new Date(alert.timestamp).toLocaleTimeString('tr-TR', {
+                      {alert.created_at ? new Date(alert.created_at).toLocaleString('tr-TR', {
+                        day: '2-digit',
+                        month: '2-digit',
                         hour: '2-digit',
                         minute: '2-digit'
-                      })}
+                      }) : 'Bilinmiyor'}
                     </span>
                   </div>
                   <p className="text-sm text-gray-700">{alert.message}</p>
