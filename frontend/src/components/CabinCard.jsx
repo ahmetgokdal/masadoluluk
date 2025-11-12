@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import { Camera, User, Clock, Calendar } from 'lucide-react';
+import { Camera, User, Clock, Calendar, Edit } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Button } from './ui/button';
 import { formatDuration, getStatusColor, getStatusLabel } from '../mock';
+import api from '../services/api';
 
-const CabinCard = ({ cabin }) => {
+const CabinCard = ({ cabin, onUpdate }) => {
   const [showCamera, setShowCamera] = useState(false);
+  const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [formData, setFormData] = useState({ student_id: '', student_name: '' });
+  const [loading, setLoading] = useState(false);
 
   const getStatusBorderColor = (status) => {
     const colors = {
