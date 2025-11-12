@@ -9,6 +9,7 @@ import ActivityChart from '../components/ActivityChart';
 import AlertsPanel from '../components/AlertsPanel';
 import Navbar from '../components/Navbar';
 import api from '../services/api';
+import wsService from '../services/websocket';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -20,19 +21,51 @@ const Dashboard = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading] = useState(true);
 
-  // Check authentication on mount
+  // Check authentication and setup WebSocket
   useEffect(() => {
     const sessionToken = localStorage.getItem('session_token');
     if (!sessionToken) {
       navigate('/login');
       return;
     }
+    
     fetchData();
+    
+    // Connect WebSocket for real-time updates
+    wsService.connect();
+    wsService.subscribe('dashboard', handleWebSocketMessage);
     
     // Refresh data every 30 seconds
     const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      wsService.unsubscribe('dashboard');
+    };
   }, [navigate]);
+
+  const handleWebSocketMessage = (message) => {
+    if (message.type === 'cabin_update') {
+      const updatedCabin = message.data;
+      setCabins(prev => prev.map(cabin => 
+        cabin.cabin_no === updatedCabin.cabin_no 
+          ? { ...cabin, ...updatedCabin } 
+          : cabin
+      ));
+      
+      // Recalculate stats
+      fetchStats();
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const statsRes = await api.stats.getStats();
+      setStats(statsRes.data);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
 
   const fetchData = async () => {
     try {
