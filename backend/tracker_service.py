@@ -127,9 +127,12 @@ class TrackerService:
                                 update_data['current_session_start'] = datetime.now(timezone.utc)
                                 update_data['current_session_duration'] = 0
                             else:
-                                # Increment duration
-                                duration = cabin.get('current_session_duration', 0)
-                                update_data['current_session_duration'] = duration + 10
+                                # Calculate real duration from start time
+                                start = cabin.get('current_session_start')
+                                if start.tzinfo is None:
+                                    start = start.replace(tzinfo=timezone.utc)
+                                duration = int((datetime.now(timezone.utc) - start).total_seconds())
+                                update_data['current_session_duration'] = duration
                         else:
                             # End session if moving from active to other
                             if cabin.get('status') == 'active' and cabin.get('current_session_start'):
