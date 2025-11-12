@@ -37,21 +37,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white shadow-lg">
-        <div className="container mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Akıllı Kabin İzleme Sistemi</h1>
-              <p className="text-orange-100">Gerçek zamanlı kabin aktivitesi ve öğrenci performans takibi</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-sm">Sistem Aktif</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Navbar />
 
       <div className="container mx-auto px-6 py-8">
         {/* Stats Cards */}
