@@ -137,8 +137,8 @@ class TrackerService:
                         # Broadcast update via WebSocket
                         await self.broadcast_cabin_update(cabin['cabin_no'])
                 
-                # Wait 10 seconds before next update
-                await asyncio.sleep(10)
+                # Wait 5 seconds before next update (faster response)
+                await asyncio.sleep(5)
                 
             except Exception as e:
                 logger.error(f"Error in tracking loop: {e}")
