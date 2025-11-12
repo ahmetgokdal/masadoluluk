@@ -222,7 +222,14 @@ async def simple_login(username: str, password: str):
     
     await db.user_sessions.insert_one(session.dict(by_alias=True))
     
+    # Convert User to dict and return
+    user_obj = User(**user_doc)
     return {
         "session_token": session_token,
-        "user": User(**user_doc)
+        "user": {
+            "id": user_obj.id,
+            "email": user_obj.email,
+            "name": user_obj.name,
+            "picture": user_obj.picture
+        }
     }
