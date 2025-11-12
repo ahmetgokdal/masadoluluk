@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Reports from "./pages/Reports";
 import Students from "./pages/Students";
 import Settings from "./pages/Settings";
+import AuthGuard from "./components/AuthGuard";
 
 function App() {
   return (
@@ -14,10 +15,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
+          <Route path="/reports" element={<AuthGuard><Reports /></AuthGuard>} />
+          <Route path="/students" element={<AuthGuard><Students /></AuthGuard>} />
+          <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
         </Routes>
       </BrowserRouter>
     </div>
