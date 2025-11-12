@@ -353,6 +353,41 @@ async def remove_camera(cabin_no: int, current_user: User = Depends(get_current_
     
     return {"message": "Camera removed successfully"}
 
+# ============= WebSocket Endpoint =============
+
+@api_router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """WebSocket endpoint for real-time cabin updates."""
+    await websocket.accept()
+    active_connections.add(websocket)
+    
+    try:
+        while True:
+            # Keep connection alive
+            data = await websocket.receive_text()
+            # Echo back for heartbeat
+            await websocket.send_text('{"type":"pong"}')
+    except WebSocketDisconnect:
+        active_connections.remove(websocket)
+    except Exception as e:
+        logger.error(f"WebSocket error: {e}")
+        if websocket in active_connections:
+            active_connections.remove(websocket)
+
+# ============= Tracking Detection Endpoint =============
+
+@api_router.post("/tracking/detection")
+async def receive_detection(data: dict):
+    """Receive detection data from tracking script."""
+    cabin_no = data.get('cabin_no')
+    detection_data = data.get('detection', {})
+    
+    if not cabin_no:
+        raise HTTPException(status_code=400, detail="cabin_no required")
+    
+    await tracker_service.process_detection(cabin_no, detection_data)
+    return {"status": "received"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
