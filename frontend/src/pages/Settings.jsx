@@ -1,30 +1,94 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Camera, Send, Plus, Trash2, Save, Key } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
-import { mockCabins, mockTelegramConfig } from '../mock';
 import Navbar from '../components/Navbar';
+import api from '../services/api';
 
 const Settings = () => {
-  const [telegramConfig, setTelegramConfig] = useState(mockTelegramConfig);
-  const [cameras, setCameras] = useState(mockCabins.slice(0, 5));
+  const [telegramConfig, setTelegramConfig] = useState({ bot_token: '', weekly_recipients: [] });
+  const [cameras, setCameras] = useState([]);
   const [newCamera, setNewCamera] = useState({ cabin_no: '', camera_url: '' });
   const [showAddCamera, setShowAddCamera] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleSaveTelegram = (e) => {
-    e.preventDefault();
-    console.log('Saving Telegram config:', telegramConfig);
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const [telegramRes, camerasRes] = await Promise.all([
+        api.settings.getTelegramConfig(),
+        api.settings.getCameraConfigs()
+      ]);
+      setTelegramConfig(telegramRes.data);
+      setCameras(camerasRes.data.slice(0, 10)); // Show first 10
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      setLoading(false);
+    }
   };
 
-  const handleAddCamera = (e) => {
+  const handleSaveTelegram = async (e) => {
     e.preventDefault();
-    console.log('Adding camera:', newCamera);
-    setNewCamera({ cabin_no: '', camera_url: '' });
-    setShowAddCamera(false);
+    try {
+      await api.settings.updateTelegramConfig(telegramConfig);
+      alert('Telegram ayarları kaydedildi!');
+    } catch (error) {
+      console.error('Error saving telegram config:', error);
+      alert('Kaydetme başarısız. Lütfen tekrar deneyin.');
+    }
   };
+
+  const handleAddCamera = async (e) => {
+    e.preventDefault();
+    try {
+      await api.settings.addCamera({
+        cabin_no: parseInt(newCamera.cabin_no),
+        camera_url: newCamera.camera_url
+      });
+      setNewCamera({ cabin_no: '', camera_url: '' });
+      setShowAddCamera(false);
+      fetchSettings();
+      alert('Kamera eklendi!');
+    } catch (error) {
+      console.error('Error adding camera:', error);
+      alert('Kamera eklenemedi. Bu kabin numarası zaten kullanılıyor olabilir.');
+    }
+  };
+
+  const handleRemoveCamera = async (cabinNo) => {
+    if (!window.confirm('Kamerayı kaldırmak istediğinizden emin misiniz?')) {
+      return;
+    }
+    try {
+      await api.settings.removeCamera(cabinNo);
+      fetchSettings();
+      alert('Kamera kaldırıldı!');
+    } catch (error) {
+      console.error('Error removing camera:', error);
+      alert('İşlem başarısız.');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
+        <Navbar />
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Yükleniyor...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
