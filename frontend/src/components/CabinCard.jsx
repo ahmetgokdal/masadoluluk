@@ -72,10 +72,15 @@ const CabinCard = ({ cabin, onUpdate }) => {
 
           {/* Session Info */}
           {cabin.status === 'active' && cabin.current_session_duration > 0 && (
-            <div className="mb-3 flex items-center gap-2 text-sm">
-              <Clock className="h-4 w-4 text-green-600" />
-              <span className="text-gray-700">Oturum:</span>
-              <span className="font-bold text-green-600">{formatDuration(cabin.current_session_duration)}</span>
+            <div className="mb-3 p-2 bg-green-50 rounded-lg border border-green-200">
+              <div className="flex items-center gap-2 text-sm mb-1">
+                <Clock className="h-4 w-4 text-green-600" />
+                <span className="text-gray-700 font-medium">Şu Anki Çalışma Süresi:</span>
+              </div>
+              <div className="flex items-center justify-between ml-6">
+                <span className="text-2xl font-bold text-green-600">{formatDuration(cabin.current_session_duration)}</span>
+                <span className="text-xs text-green-600">⏱️ Aktif</span>
+              </div>
             </div>
           )}
 
