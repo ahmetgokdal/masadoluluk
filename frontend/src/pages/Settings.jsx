@@ -9,7 +9,7 @@ import Navbar from '../components/Navbar';
 import api from '../services/api';
 
 const Settings = () => {
-  const [telegramConfig, setTelegramConfig] = useState({ bot_token: '', weekly_recipients: [] });
+  const [telegramConfig, setTelegramConfig] = useState({ bot_token: '', weekly_recipients: [], cabin_recipients: {} });
   const [cameras, setCameras] = useState([]);
   const [newCamera, setNewCamera] = useState({ cabin_no: '', camera_url: '' });
   const [showAddCamera, setShowAddCamera] = useState(false);
