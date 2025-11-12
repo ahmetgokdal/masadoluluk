@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, Request, Response, status, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse, FileResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -17,6 +17,7 @@ from models import (
 )
 import auth
 from auth import process_google_session, get_current_user, logout_user, create_session_cookie, clear_session_cookie
+from tracker_service import tracker_service, active_connections
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
