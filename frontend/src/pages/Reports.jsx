@@ -1,14 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileText, Download, Calendar, Send, Filter } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
-import { mockReports } from '../mock';
 import Navbar from '../components/Navbar';
+import api from '../services/api';
 
 const Reports = () => {
-  const [reports, setReports] = useState(mockReports);
+  const [reports, setReports] = useState([]);
   const [filterType, setFilterType] = useState('all');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = async () => {
+    try {
+      const response = await api.reports.getAll();
+      setReports(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateReport = async (type) => {
+    try {
+      await api.reports.generate({ type });
+      fetchReports();
+      alert('Rapor oluşturuldu!');
+    } catch (error) {
+      console.error('Error generating report:', error);
+      alert('Rapor oluşturulamadı. Lütfen tekrar deneyin.');
+    }
+  };
 
   const filteredReports = filterType === 'all' 
     ? reports 
