@@ -268,7 +268,12 @@ const Settings = () => {
                     <Button size="sm" variant="outline" className="border-orange-300 text-orange-600 hover:bg-orange-50">
                       Test
                     </Button>
-                    <Button size="sm" variant="outline" className="border-red-300 text-red-600 hover:bg-red-50">
+                    <Button 
+                      onClick={() => handleRemoveCamera(camera.cabin_no)}
+                      size="sm" 
+                      variant="outline" 
+                      className="border-red-300 text-red-600 hover:bg-red-50"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
