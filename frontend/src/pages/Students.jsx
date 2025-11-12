@@ -233,6 +233,7 @@ const Students = () => {
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
+                              onClick={() => handleUnassign(cabin.cabin_no)}
                               size="sm"
                               variant="outline"
                               className="border-red-300 text-red-600 hover:bg-red-50"
