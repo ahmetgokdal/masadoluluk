@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Edit, Trash2, Plus, Search } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -6,16 +6,32 @@ import { Button } from '../components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { mockCabins, formatDuration } from '../mock';
+import { formatDuration } from '../mock';
 import Navbar from '../components/Navbar';
+import api from '../services/api';
 
 const Students = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedCabin, setSelectedCabin] = useState(null);
   const [formData, setFormData] = useState({ student_id: '', student_name: '' });
+  const [assignedCabins, setAssignedCabins] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const assignedCabins = mockCabins.filter(c => c.student_id);
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const fetchStudents = async () => {
+    try {
+      const response = await api.students.getAll();
+      setAssignedCabins(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      setLoading(false);
+    }
+  };
   
   const filteredCabins = assignedCabins.filter(cabin =>
     cabin.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
