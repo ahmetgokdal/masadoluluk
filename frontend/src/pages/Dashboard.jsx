@@ -207,13 +207,14 @@ const Dashboard = () => {
           </button>
           <button
             onClick={() => setFilterStatus('active')}
+            title="Öğrenci şu anda çalışıyor (hareket var)"
             className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 ${
               filterStatus === 'active'
                 ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg'
                 : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
             }`}
           >
-            Aktif ({stats.active_cabins})
+            🟢 Aktif ({stats.active_cabins})
           </button>
           <button
             onClick={() => setFilterStatus('idle')}
