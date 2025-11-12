@@ -6,6 +6,7 @@ import { mockCabins, mockStats, mockActivityData, mockAlerts, formatDuration, ge
 import CabinCard from '../components/CabinCard';
 import ActivityChart from '../components/ActivityChart';
 import AlertsPanel from '../components/AlertsPanel';
+import Navbar from '../components/Navbar';
 
 const Dashboard = () => {
   const [cabins, setCabins] = useState(mockCabins);
