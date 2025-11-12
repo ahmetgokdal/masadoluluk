@@ -178,14 +178,20 @@ async def simple_login(username: str, password: str):
         # Create default admin user if not exists
         if username == "admin" and password == "admin123":
             user_id = "admin_user_001"
-            user = User(
-                id=user_id,
-                email="admin@cabin.local",
-                name="Admin User",
-                picture=None
-            )
-            await db.users.insert_one(user.dict(by_alias=True))
-            user_doc = user.dict(by_alias=True)
+            
+            # Check if already exists by ID
+            existing = await db.users.find_one({"_id": user_id})
+            if existing:
+                user_doc = existing
+            else:
+                user = User(
+                    id=user_id,
+                    email="admin@cabin.local",
+                    name="Admin User",
+                    picture=None
+                )
+                await db.users.insert_one(user.dict(by_alias=True))
+                user_doc = user.dict(by_alias=True)
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -194,6 +200,13 @@ async def simple_login(username: str, password: str):
     
     # For demo: accept any password (you can add password hashing later)
     # In production, verify password hash here
+    
+    # Validate password for admin
+    if username == "admin" and password != "admin123":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid username or password"
+        )
     
     # Create session
     import uuid
