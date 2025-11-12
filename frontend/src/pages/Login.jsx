@@ -122,8 +122,16 @@ const Login = () => {
 
             <button
               onClick={handleLogin}
-              className="w-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-3"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
+              {loading ? (
+                <>
+                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Yükleniyor...
+                </>
+              ) : (
+                <>
               <svg className="h-6 w-6" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
