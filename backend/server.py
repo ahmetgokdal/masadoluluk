@@ -48,6 +48,20 @@ logger = logging.getLogger(__name__)
 
 # ============= Authentication Endpoints =============
 
+@api_router.post("/auth/login")
+async def login(request: SimpleLoginRequest, response: Response):
+    """Simple username/password login."""
+    result = await simple_login(request.username, request.password)
+    
+    # Create response and set cookie
+    json_response = JSONResponse(content={
+        "session_token": result["session_token"],
+        "user": result["user"].dict()
+    })
+    create_session_cookie(json_response, result["session_token"])
+    
+    return json_response
+
 @api_router.post("/auth/session", response_model=SessionData)
 async def create_session(request: AuthSessionRequest, response: Response):
     """Process session_id from Google OAuth and create session."""
