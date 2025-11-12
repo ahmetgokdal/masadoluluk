@@ -2,34 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { Camera, Users, Clock, TrendingUp, AlertTriangle, Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { mockCabins, mockStats, mockActivityData, mockAlerts, formatDuration, getStatusColor, getStatusLabel } from '../mock';
+import { formatDuration, getStatusColor, getStatusLabel } from '../mock';
 import CabinCard from '../components/CabinCard';
 import ActivityChart from '../components/ActivityChart';
 import AlertsPanel from '../components/AlertsPanel';
 import Navbar from '../components/Navbar';
+import api from '../services/api';
 
 const Dashboard = () => {
-  const [cabins, setCabins] = useState(mockCabins);
-  const [stats, setStats] = useState(mockStats);
-  const [alerts, setAlerts] = useState(mockAlerts);
+  const [cabins, setCabins] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [alerts, setAlerts] = useState([]);
+  const [dailyActivity, setDailyActivity] = useState([]);
+  const [weeklyActivity, setWeeklyActivity] = useState([]);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [loading, setLoading] = useState(true);
 
-  // Simulate real-time updates
+  // Fetch data on mount
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCabins(prev => prev.map(cabin => {
-        if (cabin.status === 'active') {
-          return {
-            ...cabin,
-            current_session_duration: cabin.current_session_duration + 10
-          };
-        }
-        return cabin;
-      }));
-    }, 10000);
-
+    fetchData();
+    
+    // Refresh data every 30 seconds
+    const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const [cabinsRes, statsRes, alertsRes, dailyRes, weeklyRes] = await Promise.all([
+        api.cabins.getAll(),
+        api.stats.getStats(),
+        api.stats.getAlerts(),
+        api.stats.getDailyActivity(),
+        api.stats.getWeeklyActivity()
+      ]);
+
+      setCabins(cabinsRes.data);
+      setStats(statsRes.data);
+      setAlerts(alertsRes.data);
+      setDailyActivity(dailyRes.data);
+      setWeeklyActivity(weeklyRes.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setLoading(false);
+    }
+  };
 
   const filteredCabins = filterStatus === 'all' 
     ? cabins 
