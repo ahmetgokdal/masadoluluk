@@ -28,8 +28,9 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Set database for auth module
+# Set database for auth and tracker modules
 auth.set_database(db)
+tracker_module.set_database(db)
 
 # Create the main app without a prefix
 app = FastAPI(title="Smart Cabin Monitoring API")
