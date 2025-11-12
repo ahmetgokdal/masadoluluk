@@ -14,6 +14,7 @@ const Settings = () => {
   const [newCamera, setNewCamera] = useState({ cabin_no: '', camera_url: '' });
   const [showAddCamera, setShowAddCamera] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [newChatId, setNewChatId] = useState('');
 
   useEffect(() => {
     fetchSettings();
