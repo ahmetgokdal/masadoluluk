@@ -99,19 +99,28 @@ const Reports = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border-2 border-green-200 hover:border-green-400 transition-all duration-200 hover:shadow-md">
+              <button 
+                onClick={() => handleGenerateReport('daily')}
+                className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border-2 border-green-200 hover:border-green-400 transition-all duration-200 hover:shadow-md"
+              >
                 <Calendar className="h-8 w-8 text-green-600 mb-3 mx-auto" />
                 <h3 className="font-semibold text-gray-800 mb-2">Günlük Rapor</h3>
                 <p className="text-sm text-gray-600">Bugünün aktivitelerini raporla</p>
               </button>
 
-              <button className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border-2 border-blue-200 hover:border-blue-400 transition-all duration-200 hover:shadow-md">
+              <button 
+                onClick={() => handleGenerateReport('weekly')}
+                className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border-2 border-blue-200 hover:border-blue-400 transition-all duration-200 hover:shadow-md"
+              >
                 <Calendar className="h-8 w-8 text-blue-600 mb-3 mx-auto" />
                 <h3 className="font-semibold text-gray-800 mb-2">Haftalık Rapor</h3>
                 <p className="text-sm text-gray-600">Bu haftanın özetini oluştur</p>
               </button>
 
-              <button className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200 hover:border-purple-400 transition-all duration-200 hover:shadow-md">
+              <button 
+                onClick={() => handleGenerateReport('monthly')}
+                className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200 hover:border-purple-400 transition-all duration-200 hover:shadow-md"
+              >
                 <Calendar className="h-8 w-8 text-purple-600 mb-3 mx-auto" />
                 <h3 className="font-semibold text-gray-800 mb-2">Aylık Rapor</h3>
                 <p className="text-sm text-gray-600">Aylık performans raporu</p>
