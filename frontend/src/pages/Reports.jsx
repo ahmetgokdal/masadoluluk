@@ -263,6 +263,77 @@ const Reports = () => {
           ))}
         </div>
       </div>
+
+      {/* Generate Report Dialog */}
+      <Dialog open={showGenerateDialog} onOpenChange={setShowGenerateDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-800">
+              {selectedReportType === 'daily' && 'Günlük Rapor Oluştur'}
+              {selectedReportType === 'weekly' && 'Haftalık Rapor Oluştur'}
+              {selectedReportType === 'monthly' && 'Aylık Rapor Oluştur'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <Label htmlFor="cabin_no" className="text-gray-700 font-medium">
+                Kabin Numarası (İsteğe Bağlı)
+              </Label>
+              <Input
+                id="cabin_no"
+                type="number"
+                value={reportForm.cabin_no}
+                onChange={(e) => setReportForm({ ...reportForm, cabin_no: e.target.value })}
+                placeholder="Tüm kabinler için boş bırakın"
+                className="mt-1"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Boş bırakırsanız tüm kabinlerin raporu oluşturulur
+              </p>
+            </div>
+            
+            {selectedReportType === 'daily' && (
+              <div>
+                <Label htmlFor="date" className="text-gray-700 font-medium">
+                  Tarih (İsteğe Bağlı)
+                </Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={reportForm.date}
+                  onChange={(e) => setReportForm({ ...reportForm, date: e.target.value })}
+                  className="mt-1"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Boş bırakırsanız bugünün raporu oluşturulur
+                </p>
+              </div>
+            )}
+
+            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-gray-700">
+                ℹ️ Rapor, gerçek session verilerinden oluşturulacaktır.
+              </p>
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                onClick={submitGenerateReport}
+                className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
+              >
+                Rapor Oluştur
+              </Button>
+              <Button
+                onClick={() => setShowGenerateDialog(false)}
+                variant="outline"
+                className="flex-1"
+              >
+                İptal
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
