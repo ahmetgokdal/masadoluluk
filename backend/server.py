@@ -399,6 +399,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.on_event("startup")
+async def startup_event():
+    """Start tracker service on startup."""
+    await tracker_service.start()
+    logger.info("Application started - Tracker service running")
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    """Stop tracker service and close database."""
+    await tracker_service.stop()
     client.close()
+    logger.info("Application shutdown complete")
