@@ -48,21 +48,51 @@ class TrackerService:
         logger.info("Tracker service stopped")
     
     async def _tracking_loop(self):
-        """Main tracking loop - simulates real tracking for now"""
-        import random
+        """Main tracking loop - uses real camera detection"""
+        from camera_detector import detector
+        import asyncio
         
         while self.running:
             try:
-                # Get all active cabins
+                # Get all cabins
                 cabins = await db.cabins.find().to_list(1000)
                 
-                # Update cabin statuses (simulated)
+                # Update cabin statuses using REAL camera detection
                 for cabin in cabins:
-                    if cabin.get('student_id'):
-                        # Randomly change status for demo
-                        statuses = ['active', 'idle', 'long_break']
-                        weights = [0.6, 0.3, 0.1]  # 60% active, 30% idle, 10% long break
-                        new_status = random.choices(statuses, weights=weights)[0]
+                    # Skip if no student assigned
+                    if not cabin.get('student_id'):
+                        continue
+                    
+                    # Analyze camera feed
+                    camera_url = cabin.get('camera_url')
+                    if not camera_url:
+                        continue
+                    
+                    # Run detection in thread pool to avoid blocking
+                    try:
+                        result = await asyncio.get_event_loop().run_in_executor(
+                            None, 
+                            detector.analyze_cabin,
+                            cabin['cabin_no'],
+                            camera_url
+                        )
+                        
+                        # Determine status based on detection
+                        if result.get('error'):
+                            # Camera offline
+                            new_status = 'empty'
+                        elif result['is_active']:
+                            new_status = 'active'
+                        elif result['brightness'] > 0.3:
+                            # Lights on but no motion - idle
+                            new_status = 'idle'
+                        else:
+                            # Lights off, no motion - long break or empty
+                            new_status = 'long_break'
+                        
+                    except Exception as e:
+                        logger.error(f"Detection error for cabin {cabin['cabin_no']}: {e}")
+                        new_status = cabin.get('status', 'idle')  # Keep current status on error
                         
                         update_data = {
                             'status': new_status,
