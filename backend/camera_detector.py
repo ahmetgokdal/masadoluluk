@@ -18,10 +18,10 @@ class CameraDetector:
         self.min_area = 500  # Minimum motion area in pixels
         self.previous_frames = {}  # Store previous frames for each cabin
         
-    def fetch_image(self, camera_url: str, timeout: int = 5):
+    def fetch_image(self, camera_url: str, timeout: int = 3):
         """Fetch image from ESP32-CAM"""
         try:
-            response = requests.get(camera_url, timeout=timeout)
+            response = requests.get(camera_url, timeout=timeout, stream=True)
             if response.status_code == 200:
                 # Convert to numpy array
                 img_array = np.frombuffer(response.content, np.uint8)
