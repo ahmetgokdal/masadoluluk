@@ -79,10 +79,32 @@ class TrackerService:
                         
                         # Determine status based on detection
                         if result.get('error'):
-                            # Camera offline
-                            new_status = 'empty'
+                            # Camera offline - keep last known status
+                            new_status = cabin.get('status', 'empty')
+                            # Create camera offline alert
+                            existing_alert = await db.alerts.find_one({
+                                'cabin_no': cabin['cabin_no'],
+                                'type': 'camera_offline',
+                                'resolved': False
+                            })
+                            if not existing_alert:
+                                await db.alerts.insert_one({
+                                    '_id': f"alert_camera_{cabin['cabin_no']}_{int(datetime.now(timezone.utc).timestamp())}",
+                                    'type': 'camera_offline',
+                                    'cabin_no': cabin['cabin_no'],
+                                    'student_name': cabin.get('student_name'),
+                                    'message': 'Kamera bağlantısı kesildi',
+                                    'severity': 'error',
+                                    'resolved': False,
+                                    'created_at': datetime.now(timezone.utc)
+                                })
                         elif result['is_active']:
                             new_status = 'active'
+                            # Resolve camera offline alert if exists
+                            await db.alerts.update_many(
+                                {'cabin_no': cabin['cabin_no'], 'type': 'camera_offline'},
+                                {'$set': {'resolved': True}}
+                            )
                         elif result['brightness'] > 0.3:
                             # Lights on but no motion - idle
                             new_status = 'idle'
