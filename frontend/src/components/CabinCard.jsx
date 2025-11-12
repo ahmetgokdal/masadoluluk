@@ -99,6 +99,79 @@ const CabinCard = ({ cabin, onUpdate }) => {
         </CardContent>
       </Card>
 
+      {/* Assign Student Dialog */}
+      <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-800">
+              Öğrenci Ata - Kabin {cabin.cabin_no}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setLoading(true);
+            try {
+              await api.cabins.assign(cabin.cabin_no, formData);
+              setShowAssignDialog(false);
+              if (onUpdate) onUpdate();
+              alert('Öğrenci başarıyla atandı!');
+            } catch (error) {
+              console.error('Error assigning student:', error);
+              alert('Öğrenci atanamadı. Lütfen tekrar deneyin.');
+            } finally {
+              setLoading(false);
+            }
+          }} className="space-y-4 mt-4">
+            <div>
+              <Label htmlFor="student_id" className="text-gray-700 font-medium">
+                Öğrenci ID
+              </Label>
+              <Input
+                id="student_id"
+                value={formData.student_id}
+                onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
+                placeholder="örn: STU001"
+                className="mt-1"
+                required
+                disabled={loading}
+              />
+            </div>
+            <div>
+              <Label htmlFor="student_name" className="text-gray-700 font-medium">
+                Öğrenci Adı
+              </Label>
+              <Input
+                id="student_name"
+                value={formData.student_name}
+                onChange={(e) => setFormData({ ...formData, student_name: e.target.value })}
+                placeholder="örn: Ahmet Yılmaz"
+                className="mt-1"
+                required
+                disabled={loading}
+              />
+            </div>
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
+              >
+                {loading ? 'Kaydediliyor...' : 'Kaydet'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAssignDialog(false)}
+                className="flex-1"
+                disabled={loading}
+              >
+                İptal
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Camera Modal */}
       <Dialog open={showCamera} onOpenChange={setShowCamera}>
         <DialogContent className="max-w-3xl">
