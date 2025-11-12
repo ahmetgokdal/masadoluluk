@@ -26,14 +26,37 @@ const Reports = () => {
     }
   };
 
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
+  const [selectedReportType, setSelectedReportType] = useState(null);
+  const [reportForm, setReportForm] = useState({ cabin_no: '', date: '' });
+
   const handleGenerateReport = async (type) => {
+    setSelectedReportType(type);
+    setReportForm({ cabin_no: '', date: '' });
+    setShowGenerateDialog(true);
+  };
+
+  const submitGenerateReport = async () => {
     try {
-      await api.reports.generate({ type });
+      const payload = {
+        type: selectedReportType,
+        cabin_no: reportForm.cabin_no ? parseInt(reportForm.cabin_no) : null,
+        date: reportForm.date || null
+      };
+      
+      const response = await api.reports.generate(payload);
+      setShowGenerateDialog(false);
       fetchReports();
-      alert('Rapor oluşturuldu!');
+      
+      const summary = response.data.summary;
+      alert(`✅ Rapor Oluşturuldu!\n\n` +
+            `Dönem: ${summary.period}\n` +
+            `Toplam: ${summary.total_hours} saat\n` +
+            `Oturum: ${summary.sessions_count} adet\n` +
+            `Öğrenci: ${summary.student}`);
     } catch (error) {
       console.error('Error generating report:', error);
-      alert('Rapor oluşturulamadı. Lütfen tekrar deneyin.');
+      alert('❌ Rapor oluşturulamadı: ' + (error.response?.data?.detail || error.message));
     }
   };
 
