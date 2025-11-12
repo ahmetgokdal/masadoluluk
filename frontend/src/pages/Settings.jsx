@@ -154,13 +154,14 @@ const Settings = () => {
               <div>
                 <Label className="text-gray-700 font-medium">Haftalık Rapor Alıcıları</Label>
                 <div className="mt-2 space-y-2">
-                  {telegramConfig.weekly_recipients.map((chatId, index) => (
+                  {telegramConfig.weekly_recipients && telegramConfig.weekly_recipients.map((chatId, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <Input value={chatId} readOnly className="flex-1" />
                       <Button
                         type="button"
                         size="sm"
                         variant="outline"
+                        onClick={() => handleRemoveChatId(index)}
                         className="border-red-300 text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -170,6 +171,7 @@ const Settings = () => {
                   <Button
                     type="button"
                     variant="outline"
+                    onClick={handleAddChatId}
                     className="w-full border-orange-300 text-orange-600 hover:bg-orange-50"
                   >
                     <Plus className="h-4 w-4 mr-2" />
