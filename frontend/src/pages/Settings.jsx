@@ -344,7 +344,16 @@ const Settings = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="border-orange-300 text-orange-600 hover:bg-orange-50">
+                    <Button 
+                      onClick={() => {
+                        setTestCamera(camera);
+                        setImageError(false);
+                      }}
+                      size="sm" 
+                      variant="outline" 
+                      className="border-orange-300 text-orange-600 hover:bg-orange-50"
+                    >
+                      <Camera className="h-3 w-3 mr-1" />
                       Test
                     </Button>
                     <Button 
