@@ -137,12 +137,79 @@ class TrackerService:
                         # Broadcast update via WebSocket
                         await self.broadcast_cabin_update(cabin['cabin_no'])
                 
+                # Check for alerts after each cabin
+                await self.check_and_create_alerts(cabin)
+                
                 # Wait 5 seconds before next update (faster response)
                 await asyncio.sleep(5)
                 
             except Exception as e:
                 logger.error(f"Error in tracking loop: {e}")
                 await asyncio.sleep(5)
+    
+    async def check_and_create_alerts(self, cabin):
+        """Check cabin status and create alerts if needed"""
+        try:
+            # Long break alert (more than 2 hours in long_break)
+            if cabin.get('status') == 'long_break':
+                if cabin.get('current_session_start'):
+                    start = cabin.get('current_session_start')
+                    if start.tzinfo is None:
+                        start = start.replace(tzinfo=timezone.utc)
+                    
+                    hours_in_break = (datetime.now(timezone.utc) - start).total_seconds() / 3600
+                    
+                    if hours_in_break >= 2:
+                        # Check if alert already exists
+                        existing = await db.alerts.find_one({
+                            'cabin_no': cabin['cabin_no'],
+                            'type': 'long_break',
+                            'resolved': False
+                        })
+                        
+                        if not existing:
+                            alert = {
+                                '_id': f"alert_longbreak_{cabin['cabin_no']}_{int(datetime.now(timezone.utc).timestamp())}",
+                                'type': 'long_break',
+                                'cabin_no': cabin['cabin_no'],
+                                'student_name': cabin.get('student_name'),
+                                'message': f"{int(hours_in_break)} saattir uzun molada",
+                                'severity': 'warning',
+                                'resolved': False,
+                                'created_at': datetime.now(timezone.utc)
+                            }
+                            await db.alerts.insert_one(alert)
+            
+            # No data alert (24 hours without activity)
+            if cabin.get('last_activity'):
+                last_activity = cabin.get('last_activity')
+                if last_activity.tzinfo is None:
+                    last_activity = last_activity.replace(tzinfo=timezone.utc)
+                
+                hours_inactive = (datetime.now(timezone.utc) - last_activity).total_seconds() / 3600
+                
+                if hours_inactive >= 24:
+                    existing = await db.alerts.find_one({
+                        'cabin_no': cabin['cabin_no'],
+                        'type': 'no_data',
+                        'resolved': False
+                    })
+                    
+                    if not existing:
+                        alert = {
+                            '_id': f"alert_nodata_{cabin['cabin_no']}_{int(datetime.now(timezone.utc).timestamp())}",
+                            'type': 'no_data',
+                            'cabin_no': cabin['cabin_no'],
+                            'student_name': cabin.get('student_name'),
+                            'message': f"{int(hours_inactive)} saattir veri yok",
+                            'severity': 'critical',
+                            'resolved': False,
+                            'created_at': datetime.now(timezone.utc)
+                        }
+                        await db.alerts.insert_one(alert)
+                        
+        except Exception as e:
+            logger.error(f"Error checking alerts: {e}")
     
     async def broadcast_cabin_update(self, cabin_no: int):
         """Broadcast cabin update to all WebSocket connections"""
