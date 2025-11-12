@@ -86,9 +86,11 @@ const CabinCard = ({ cabin, onUpdate }) => {
 
           {/* Daily Total */}
           {cabin.daily_total > 0 && (
-            <div className="mb-3 flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4 text-blue-600" />
-              <span className="text-gray-700">Bugün:</span>
+            <div className="mb-3 flex items-center justify-between text-sm p-2 bg-blue-50 rounded border border-blue-200">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-blue-600" />
+                <span className="text-gray-700">Bugünkü Toplam:</span>
+              </div>
               <span className="font-bold text-blue-600">{formatDuration(cabin.daily_total)}</span>
             </div>
           )}
