@@ -130,7 +130,7 @@ const Dashboard = () => {
               <CardTitle className="text-lg font-semibold text-gray-800">Günlük Aktivite</CardTitle>
             </CardHeader>
             <CardContent>
-              <ActivityChart data={mockActivityData.daily} type="daily" />
+              <ActivityChart data={dailyActivity} type="daily" />
             </CardContent>
           </Card>
 
@@ -139,7 +139,7 @@ const Dashboard = () => {
               <CardTitle className="text-lg font-semibold text-gray-800">Haftalık Aktivite</CardTitle>
             </CardHeader>
             <CardContent>
-              <ActivityChart data={mockActivityData.weekly} type="weekly" />
+              <ActivityChart data={weeklyActivity} type="weekly" />
             </CardContent>
           </Card>
         </div>
