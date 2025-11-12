@@ -166,3 +166,50 @@ def clear_session_cookie(response: JSONResponse):
         path="/",
         samesite="none"
     )
+
+async def simple_login(username: str, password: str):
+    """
+    Simple username/password login (for desktop version)
+    """
+    # Check if user exists
+    user_doc = await db.users.find_one({"email": username})
+    
+    if not user_doc:
+        # Create default admin user if not exists
+        if username == "admin" and password == "admin123":
+            user_id = "admin_user_001"
+            user = User(
+                id=user_id,
+                email="admin@cabin.local",
+                name="Admin User",
+                picture=None
+            )
+            await db.users.insert_one(user.dict(by_alias=True))
+            user_doc = user.dict(by_alias=True)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid username or password"
+            )
+    
+    # For demo: accept any password (you can add password hashing later)
+    # In production, verify password hash here
+    
+    # Create session
+    import uuid
+    session_token = f"session_{uuid.uuid4().hex}"
+    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+    
+    session = UserSession(
+        id=f"sess_{uuid.uuid4().hex}",
+        user_id=user_doc["_id"],
+        session_token=session_token,
+        expires_at=expires_at
+    )
+    
+    await db.user_sessions.insert_one(session.dict(by_alias=True))
+    
+    return {
+        "session_token": session_token,
+        "user": User(**user_doc)
+    }
