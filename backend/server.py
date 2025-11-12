@@ -15,6 +15,7 @@ from models import (
     Alert, TelegramConfig, TelegramConfigUpdate, Stats, ActivityData,
     ActivityDataPoint, User, AuthSessionRequest, SessionData, CabinStatus
 )
+import auth
 from auth import process_google_session, get_current_user, logout_user, create_session_cookie, clear_session_cookie
 
 ROOT_DIR = Path(__file__).parent
@@ -24,6 +25,9 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+# Set database for auth module
+auth.set_database(db)
 
 # Create the main app without a prefix
 app = FastAPI(title="Smart Cabin Monitoring API")
