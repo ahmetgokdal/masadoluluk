@@ -173,7 +173,10 @@ const CabinCard = ({ cabin, onUpdate }) => {
       </Dialog>
 
       {/* Camera Modal */}
-      <Dialog open={showCamera} onOpenChange={setShowCamera}>
+      <Dialog open={showCamera} onOpenChange={(open) => {
+        setShowCamera(open);
+        if (!open) setImageError(false);
+      }}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-800">
@@ -189,34 +192,50 @@ const CabinCard = ({ cabin, onUpdate }) => {
             )}
             <div className="relative bg-gray-900 rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
               {!imageError ? (
-                <img
-                  src={cabin.camera_url}
-                  alt={`Kabin ${cabin.cabin_no} kamera görüntüsü`}
-                  className="w-full h-full object-cover"
-                  onError={() => setImageError(true)}
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-white">
-                  <Camera className="h-16 w-16 mb-4 text-gray-500" />
-                  <p className="text-gray-400">Kamera görüntüsü alınamadı</p>
-                  <p className="text-sm text-gray-500 mt-2">{cabin.camera_url}</p>
-                </div>
-              )}
-              {!imageError && (
-                <div className="absolute top-4 right-4">
-                  <div className="flex items-center gap-2 bg-black bg-opacity-70 px-3 py-2 rounded-full">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-white text-sm font-medium">CANLI</span>
+                <>
+                  <img
+                    key={cabin.camera_url + Date.now()}
+                    src={`${cabin.camera_url}?t=${Date.now()}`}
+                    alt={`Kabin ${cabin.cabin_no} kamera görüntüsü`}
+                    className="w-full h-full object-cover"
+                    onError={() => setImageError(true)}
+                    onLoad={() => console.log('Kamera görüntüsü yüklendi')}
+                  />
+                  <div className="absolute top-4 right-4">
+                    <div className="flex items-center gap-2 bg-black bg-opacity-70 px-3 py-2 rounded-full">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      <span className="text-white text-sm font-medium">CANLI</span>
+                    </div>
                   </div>
+                </>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-white p-6">
+                  <Camera className="h-16 w-16 mb-4 text-gray-500" />
+                  <p className="text-gray-400 mb-2">Kamera görüntüsü alınamadı</p>
+                  <p className="text-sm text-gray-500 mt-2 text-center break-all">{cabin.camera_url}</p>
+                  <p className="text-xs text-gray-600 mt-3">
+                    ⚠️ ESP32-CAM cihazının açık ve ağa bağlı olduğundan emin olun
+                  </p>
                 </div>
               )}
             </div>
             <div className="mt-4 flex justify-between items-center">
-              <p className="text-sm text-gray-600">Son güncelleme: {new Date(cabin.last_activity).toLocaleString('tr-TR')}</p>
+              <p className="text-sm text-gray-600">
+                {cabin.last_activity ? 
+                  `Son güncelleme: ${new Date(cabin.last_activity).toLocaleString('tr-TR')}` : 
+                  'Henüz aktivite yok'
+                }
+              </p>
               <button
-                onClick={() => setImageError(false)}
-                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg hover:from-orange-600 hover:to-amber-600 transition-all duration-200 font-medium"
+                onClick={() => {
+                  setImageError(false);
+                  // Force image reload
+                  const img = document.querySelector(`img[alt*="Kabin ${cabin.cabin_no}"]`);
+                  if (img) img.src = `${cabin.camera_url}?t=${Date.now()}`;
+                }}
+                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg hover:from-orange-600 hover:to-amber-600 transition-all duration-200 font-medium flex items-center gap-2"
               >
+                <Camera className="h-4 w-4" />
                 Yenile
               </button>
             </div>
