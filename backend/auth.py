@@ -4,16 +4,18 @@ import requests
 from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException, Request, status
 from fastapi.responses import JSONResponse
-from motor.motor_asyncio import AsyncIOMotorClient
 from models import User, UserSession, SessionData
-
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
 
 # Emergent Auth URL
 EMERGENT_AUTH_URL = "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
+
+# Database will be passed from server.py
+db = None
+
+def set_database(database):
+    """Set the database instance from server.py"""
+    global db
+    db = database
 
 async def process_google_session(session_id: str) -> SessionData:
     """
