@@ -45,7 +45,15 @@ const Dashboard = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      setLoading(false);
+      // If API fails, use mock data
+      import('../mock').then(mockModule => {
+        setCabins(mockModule.mockCabins);
+        setStats(mockModule.mockStats);
+        setAlerts(mockModule.mockAlerts);
+        setDailyActivity(mockModule.mockActivityData.daily);
+        setWeeklyActivity(mockModule.mockActivityData.weekly);
+        setLoading(false);
+      });
     }
   };
 
