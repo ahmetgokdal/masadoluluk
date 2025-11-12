@@ -13,10 +13,11 @@ from datetime import datetime, timedelta, timezone
 from models import (
     Cabin, CabinCreate, CabinAssign, Session, Report, ReportGenerate,
     Alert, TelegramConfig, TelegramConfigUpdate, Stats, ActivityData,
-    ActivityDataPoint, User, AuthSessionRequest, SessionData, CabinStatus
+    ActivityDataPoint, User, AuthSessionRequest, SessionData, CabinStatus,
+    SimpleLoginRequest, SimpleLoginResponse
 )
 import auth
-from auth import process_google_session, get_current_user, logout_user, create_session_cookie, clear_session_cookie
+from auth import process_google_session, get_current_user, logout_user, create_session_cookie, clear_session_cookie, simple_login
 import tracker_service as tracker_module
 from tracker_service import tracker_service, active_connections
 
