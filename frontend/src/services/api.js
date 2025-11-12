@@ -39,6 +39,9 @@ apiClient.interceptors.response.use(
 
 // Auth API
 export const authApi = {
+  login: (username, password) => 
+    apiClient.post('/auth/login', { username, password }),
+  
   processSession: (sessionId) => 
     apiClient.post('/auth/session', { session_id: sessionId }),
   
