@@ -52,8 +52,9 @@ const Login = () => {
   };
 
   const handleLogin = () => {
-    // Redirect to Emergent Auth with dashboard as redirect URL
-    const redirectUrl = `${window.location.origin}/dashboard`;
+    // Redirect to Emergent Auth with login as redirect URL
+    // Login page will handle session_id and redirect to dashboard
+    const redirectUrl = `${window.location.origin}/login`;
     window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 
