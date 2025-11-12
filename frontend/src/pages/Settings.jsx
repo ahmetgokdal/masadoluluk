@@ -180,6 +180,62 @@ const Settings = () => {
                 </div>
               </div>
 
+              {/* Cabin Recipients (Veli Bildirimleri) */}
+              <div>
+                <Label className="text-gray-700 font-medium">Kabin Bazlı Bildirimler (Veli)</Label>
+                <p className="text-xs text-gray-500 mt-1 mb-3">Her kabin için özel Chat ID ekleyin. Veli sadece kendi çocuğunun raporlarını alır.</p>
+                <div className="space-y-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const cabinNo = prompt('Kabin Numarası:');
+                      const chatId = prompt('Veli Chat ID:');
+                      if (cabinNo && chatId) {
+                        setTelegramConfig(prev => ({
+                          ...prev,
+                          cabin_recipients: {
+                            ...prev.cabin_recipients,
+                            [cabinNo]: chatId.trim()
+                          }
+                        }));
+                      }
+                    }}
+                    className="w-full border-green-300 text-green-600 hover:bg-green-50"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Veli Chat ID Ekle
+                  </Button>
+                  
+                  {telegramConfig.cabin_recipients && Object.keys(telegramConfig.cabin_recipients).length > 0 && (
+                    <div className="mt-3 p-3 bg-gray-50 rounded-lg space-y-2">
+                      {Object.entries(telegramConfig.cabin_recipients).map(([cabinNo, chatId]) => (
+                        <div key={cabinNo} className="flex items-center justify-between p-2 bg-white rounded border">
+                          <span className="text-sm">
+                            <strong>Kabin {cabinNo}:</strong> {chatId}
+                          </span>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setTelegramConfig(prev => {
+                                const newRecipients = { ...prev.cabin_recipients };
+                                delete newRecipients[cabinNo];
+                                return { ...prev, cabin_recipients: newRecipients };
+                              });
+                            }}
+                            className="border-red-300 text-red-600 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Schedule Info */}
               <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
                 <h4 className="font-semibold text-gray-800 mb-2">Otomatik Gönderim Zamanları</h4>
