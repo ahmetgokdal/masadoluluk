@@ -3,18 +3,19 @@ Real-time cabin tracking service
 Integrates smart_cabin_tracker_v4.py with the backend
 """
 import asyncio
-import os
 from datetime import datetime, timezone
-from motor.motor_asyncio import AsyncIOMotorClient
 from typing import Dict, Set
 import logging
 
 logger = logging.getLogger(__name__)
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# MongoDB database instance (will be set from server.py)
+db = None
+
+def set_database(database):
+    """Set the database instance from server.py"""
+    global db
+    db = database
 
 # WebSocket connections storage
 active_connections: Set = set()
