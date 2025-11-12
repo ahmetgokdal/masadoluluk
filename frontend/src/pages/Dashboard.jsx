@@ -193,6 +193,38 @@ const Dashboard = () => {
           </Card>
         </div>
 
+        {/* Info Card */}
+        <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200 mb-6">
+          <CardContent className="pt-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-blue-500 rounded-lg">
+                <Activity className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-2">📊 Durum Açıklamaları</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                  <div>
+                    <span className="font-medium text-green-600">🟢 Aktif:</span>
+                    <p className="text-gray-600 text-xs">Hareket algılandı, çalışıyor</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-yellow-600">🟡 Boşta:</span>
+                    <p className="text-gray-600 text-xs">Işık açık, hareket yok</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-orange-600">🟠 Uzun Mola:</span>
+                    <p className="text-gray-600 text-xs">Işık kapalı veya uzun süre yok</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-600">⚪ Boş:</span>
+                    <p className="text-gray-600 text-xs">Öğrenci atanmamış</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Filter Buttons */}
         <div className="flex gap-3 mb-6 flex-wrap">
           <button
