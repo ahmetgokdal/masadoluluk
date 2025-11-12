@@ -86,7 +86,7 @@ const Login = () => {
                 <Camera className="h-6 w-6 text-white" />
               </div>
               <div className="text-left">
-                <h3 className="font-semibold text-gray-800">50 Kabin İzleme</h3>
+                <h3 className="font-semibold text-gray-800">Kabin İzleme</h3>
                 <p className="text-sm text-gray-600">Canlı kamera görüntüsü</p>
               </div>
             </div>
