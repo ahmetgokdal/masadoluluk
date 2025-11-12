@@ -15,6 +15,8 @@ const Settings = () => {
   const [showAddCamera, setShowAddCamera] = useState(false);
   const [loading, setLoading] = useState(true);
   const [newChatId, setNewChatId] = useState('');
+  const [testCamera, setTestCamera] = useState(null);
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     fetchSettings();
