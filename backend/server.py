@@ -286,23 +286,87 @@ async def get_reports(current_user: User = Depends(get_current_user)):
 
 @api_router.post("/reports/generate")
 async def generate_report(data: ReportGenerate, current_user: User = Depends(get_current_user)):
-    """Generate new report (mock for now)."""
-    # This would call the actual report generation logic
-    # For now, just create a mock entry
-    report = Report(
-        id=f"report_{uuid.uuid4().hex}",
-        type=data.type,
-        date=data.date or datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-        cabin_no=data.cabin_no,
-        student_name="Mock Student",
-        total_hours=6.5,
-        sessions_count=3,
-        filename=f"report_{data.type}_{datetime.now().strftime('%Y%m%d')}.pdf",
-        file_path="/app/backend/reports/mock.pdf"
-    )
-    
-    await db.reports.insert_one(report.dict(by_alias=True))
-    return {"message": "Report generated successfully", "report": report}
+    """Generate new report from real session data."""
+    try:
+        # Determine date range
+        if data.type == 'daily':
+            if data.date:
+                target_date = datetime.strptime(data.date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            else:
+                target_date = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+            start_date = target_date
+            end_date = target_date + timedelta(days=1)
+            date_str = target_date.strftime("%Y-%m-%d")
+        
+        elif data.type == 'weekly':
+            today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+            start_date = today - timedelta(days=7)
+            end_date = today
+            date_str = start_date.strftime("%Y-%m-%d")
+        
+        else:  # monthly
+            today = datetime.now(timezone.utc)
+            start_date = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            # Next month's first day
+            if today.month == 12:
+                end_date = today.replace(year=today.year + 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+            else:
+                end_date = today.replace(month=today.month + 1, day=1, hour=0, minute=0, second=0, microsecond=0)
+            date_str = start_date.strftime("%Y-%m")
+        
+        # Query sessions
+        query = {
+            "start_time": {"$gte": start_date, "$lt": end_date}
+        }
+        
+        if data.cabin_no:
+            query["cabin_no"] = data.cabin_no
+        
+        sessions = await db.sessions.find(query).to_list(10000)
+        
+        # Calculate totals
+        total_seconds = sum(s.get('duration', 0) for s in sessions)
+        total_hours = total_seconds / 3600
+        sessions_count = len(sessions)
+        
+        # Get student name if cabin specific
+        student_name = "Tüm Öğrenciler"
+        if data.cabin_no:
+            cabin = await db.cabins.find_one({"cabin_no": data.cabin_no})
+            if cabin and cabin.get('student_name'):
+                student_name = cabin['student_name']
+        
+        # Create report entry
+        filename = f"report_{data.type}_{date_str}_cabin{data.cabin_no if data.cabin_no else 'all'}.pdf"
+        
+        report = Report(
+            id=f"report_{uuid.uuid4().hex}",
+            type=data.type,
+            date=date_str,
+            cabin_no=data.cabin_no,
+            student_name=student_name,
+            total_hours=round(total_hours, 1),
+            sessions_count=sessions_count,
+            filename=filename,
+            file_path=f"/app/backend/reports/{filename}"
+        )
+        
+        await db.reports.insert_one(report.dict(by_alias=True))
+        
+        return {
+            "message": "Rapor başarıyla oluşturuldu",
+            "report": report.dict(),
+            "summary": {
+                "period": f"{start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}",
+                "total_hours": round(total_hours, 1),
+                "sessions_count": sessions_count,
+                "student": student_name
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating report: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ============= Settings Endpoints =============
 
