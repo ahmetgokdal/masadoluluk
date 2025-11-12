@@ -126,7 +126,8 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-green-600">{stats.active_cabins}</div>
-              <p className="text-xs text-gray-500 mt-2">/ {stats.total_cabins} toplam kabin</p>
+              <p className="text-xs text-gray-500 mt-2">Şu anda çalışıyor / {stats.total_cabins} toplam</p>
+              <p className="text-xs text-green-600 mt-1 font-medium">🟢 Gerçek zamanlı</p>
             </CardContent>
           </Card>
 
