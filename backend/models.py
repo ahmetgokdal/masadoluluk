@@ -164,3 +164,11 @@ class SessionData(BaseModel):
 
 class AuthSessionRequest(BaseModel):
     session_id: str
+
+class SimpleLoginRequest(BaseModel):
+    username: str
+    password: str
+
+class SimpleLoginResponse(BaseModel):
+    session_token: str
+    user: User
