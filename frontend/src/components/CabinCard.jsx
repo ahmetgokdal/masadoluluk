@@ -42,17 +42,32 @@ const CabinCard = ({ cabin, onUpdate }) => {
         <CardContent>
           {/* Student Info */}
           {cabin.student_id ? (
-            <div className="mb-4 p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg">
+            <div className="mb-4 p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg relative group">
               <div className="flex items-center gap-2 mb-1">
                 <User className="h-4 w-4 text-orange-600" />
                 <span className="font-semibold text-gray-800">{cabin.student_name}</span>
+                <button
+                  onClick={() => {
+                    setFormData({ student_id: cabin.student_id, student_name: cabin.student_name });
+                    setShowAssignDialog(true);
+                  }}
+                  className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-orange-200 rounded"
+                >
+                  <Edit className="h-3 w-3 text-orange-600" />
+                </button>
               </div>
               <p className="text-xs text-gray-600 ml-6">{cabin.student_id}</p>
             </div>
           ) : (
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500 text-center">Öğrenci atanmamış</p>
-            </div>
+            <button 
+              onClick={() => {
+                setFormData({ student_id: '', student_name: '' });
+                setShowAssignDialog(true);
+              }}
+              className="mb-4 p-3 w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-dashed border-green-300 hover:border-green-500 transition-all"
+            >
+              <p className="text-sm text-green-600 font-medium text-center">+ Öğrenci Ata</p>
+            </button>
           )}
 
           {/* Session Info */}
