@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Camera, Users, Clock, TrendingUp, AlertTriangle, Activity } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -10,6 +11,7 @@ import Navbar from '../components/Navbar';
 import api from '../services/api';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [cabins, setCabins] = useState([]);
   const [stats, setStats] = useState(null);
   const [alerts, setAlerts] = useState([]);
@@ -18,14 +20,19 @@ const Dashboard = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading] = useState(true);
 
-  // Fetch data on mount
+  // Check authentication on mount
   useEffect(() => {
+    const sessionToken = localStorage.getItem('session_token');
+    if (!sessionToken) {
+      navigate('/login');
+      return;
+    }
     fetchData();
     
     // Refresh data every 30 seconds
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [navigate]);
 
   const fetchData = async () => {
     try {
