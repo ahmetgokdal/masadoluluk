@@ -17,6 +17,7 @@ from models import (
 )
 import auth
 from auth import process_google_session, get_current_user, logout_user, create_session_cookie, clear_session_cookie
+import tracker_service as tracker_module
 from tracker_service import tracker_service, active_connections
 
 ROOT_DIR = Path(__file__).parent
