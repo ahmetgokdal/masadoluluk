@@ -48,12 +48,44 @@ const Students = () => {
     setShowAddDialog(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Mock submit - will be replaced with API call
-    console.log('Assigning student:', formData, 'to cabin:', selectedCabin?.cabin_no);
-    setShowAddDialog(false);
+    try {
+      await api.cabins.assign(selectedCabin.cabin_no, formData);
+      setShowAddDialog(false);
+      fetchStudents();
+    } catch (error) {
+      console.error('Error assigning student:', error);
+      alert('Öğrenci atanamadı. Lütfen tekrar deneyin.');
+    }
   };
+
+  const handleUnassign = async (cabinNo) => {
+    if (!window.confirm('Öğrenci atamasını kaldırmak istediğinizden emin misiniz?')) {
+      return;
+    }
+    try {
+      await api.cabins.unassign(cabinNo);
+      fetchStudents();
+    } catch (error) {
+      console.error('Error unassigning student:', error);
+      alert('İşlem başarısız. Lütfen tekrar deneyin.');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
+        <Navbar />
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Yükleniyor...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
