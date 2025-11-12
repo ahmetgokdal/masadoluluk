@@ -1,29 +1,60 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Camera, TrendingUp, Users, BarChart3 } from 'lucide-react';
+import api from '../services/api';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in
     const sessionToken = localStorage.getItem('session_token');
     if (sessionToken) {
       navigate('/dashboard');
+      return;
     }
-  }, [navigate]);
+
+    // Check for session_id in URL hash (from Google OAuth redirect)
+    const hash = location.hash;
+    if (hash && hash.includes('session_id=')) {
+      processSessionId(hash);
+    }
+  }, [navigate, location]);
+
+  const processSessionId = async (hash) => {
+    setLoading(true);
+    try {
+      // Extract session_id from hash
+      const sessionId = hash.split('session_id=')[1]?.split('&')[0];
+      
+      if (!sessionId) {
+        throw new Error('No session ID found');
+      }
+
+      // Process session with backend
+      const response = await api.auth.processSession(sessionId);
+      const { session_token, ...userData } = response.data;
+
+      // Store session token and user data
+      localStorage.setItem('session_token', session_token);
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      // Clear hash and redirect to dashboard
+      window.location.hash = '';
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Session processing error:', error);
+      alert('Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.');
+      setLoading(false);
+    }
+  };
 
   const handleLogin = () => {
-    // For now, just set a mock token and navigate
-    // In real implementation, this will redirect to Google OAuth
-    localStorage.setItem('session_token', 'mock_token_' + Date.now());
-    localStorage.setItem('user', JSON.stringify({
-      id: 'user_123',
-      email: 'admin@example.com',
-      name: 'Admin User',
-      picture: 'https://via.placeholder.com/150'
-    }));
-    navigate('/dashboard');
+    // Redirect to Emergent Auth with dashboard as redirect URL
+    const redirectUrl = `${window.location.origin}/dashboard`;
+    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
 
   return (
