@@ -46,6 +46,23 @@ const Settings = () => {
     }
   };
 
+  const handleAddChatId = () => {
+    const chatId = prompt('Chat ID girin:');
+    if (chatId && chatId.trim()) {
+      setTelegramConfig(prev => ({
+        ...prev,
+        weekly_recipients: [...prev.weekly_recipients, chatId.trim()]
+      }));
+    }
+  };
+
+  const handleRemoveChatId = (index) => {
+    setTelegramConfig(prev => ({
+      ...prev,
+      weekly_recipients: prev.weekly_recipients.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleAddCamera = async (e) => {
     e.preventDefault();
     try {
