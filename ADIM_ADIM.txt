@@ -1,0 +1,251 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║  🚀 AKILLI KABİN İZLEME SİSTEMİ - ADIM ADIM KURULUM                ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+📍 ŞU ANDA NEREDESİNİZ: Emergent platformunda
+📍 HEDEF: Kendi bilgisayarınızda masaüstü uygulaması
+
+
+═══════════════════════════════════════════════════════════════════════
+  ADIM 1: DOSYALARI BİLGİSAYARINIZA İNDİRİN
+═══════════════════════════════════════════════════════════════════════
+
+Seçenek A: GitHub ile (ÖNERİLEN) ⭐
+  
+  1️⃣ Emergent ekranının üstünde "Save to GitHub" butonunu bulun
+  2️⃣ Tıklayın ve repo adı verin: smart-cabin-monitoring
+  3️⃣ "Push" edin
+  4️⃣ GitHub sayfanıza gidin
+  5️⃣ Yeşil "Code" butonuna tıklayın
+  6️⃣ "Download ZIP" seçin
+  7️⃣ ZIP'i bilgisayarınıza indirin
+  8️⃣ İstediğiniz klasöre çıkarın (örn: Desktop)
+
+Seçenek B: Manuel İndirme
+  
+  1️⃣ Emergent'te "Download" veya "Export" seçeneğini arayın
+  2️⃣ Tüm projeyi ZIP olarak indirin
+  3️⃣ ZIP'i Desktop'a çıkarın
+
+
+═══════════════════════════════════════════════════════════════════════
+  ADIM 2: GEREKLİ YAZILIMLARI KURUN
+═══════════════════════════════════════════════════════════════════════
+
+🐍 Python 3.8+ Kurulumu:
+  
+  Windows:
+    1️⃣ https://www.python.org/downloads/ adresine gidin
+    2️⃣ "Download Python 3.12" butonuna tıklayın
+    3️⃣ İndirilen dosyayı çalıştırın
+    4️⃣ ⚠️ ÖNEMLİ: "Add Python to PATH" kutucuğunu işaretleyin
+    5️⃣ "Install Now" tıklayın
+    6️⃣ Kurulum bitince test edin:
+       
+       Win+R → cmd → Enter
+       python --version
+       
+       Çıktı: Python 3.12.x (veya 3.8+)
+
+  Mac:
+    1️⃣ https://www.python.org/downloads/ adresine gidin
+    2️⃣ Mac için Python'u indirin
+    3️⃣ .pkg dosyasını çalıştırın
+    4️⃣ Terminal'de test edin: python3 --version
+
+
+🟢 Node.js 14+ Kurulumu:
+  
+  Windows & Mac:
+    1️⃣ https://nodejs.org/ adresine gidin
+    2️⃣ LTS (Long Term Support) versiyonunu indirin
+    3️⃣ Kurulum dosyasını çalıştırın
+    4️⃣ Varsayılan ayarlarla ilerleyin
+    5️⃣ Kurulum bitince test edin:
+       
+       Win+R → cmd → Enter (Windows)
+       Terminal (Mac)
+       
+       node --version
+       npm --version
+
+
+═══════════════════════════════════════════════════════════════════════
+  ADIM 3: UYGULAMAYI BAŞLATIN
+═══════════════════════════════════════════════════════════════════════
+
+Windows Kullanıcıları:
+  
+  Yöntem 1 - Çift Tıklama (EN KOLAY):
+    1️⃣ İndirdiğiniz klasörü açın (örn: Desktop/smart-cabin-monitoring)
+    2️⃣ "BASLAT.bat" dosyasını bulun
+    3️⃣ Dosyaya ÇİFT TIKLAYIN
+    4️⃣ Siyah pencere açılacak - KAPATMAYIN!
+    5️⃣ İlk açılış: 3-5 dakika bekleyin (paketler yükleniyor)
+    6️⃣ Tarayıcı otomatik açılacak
+  
+  Yöntem 2 - Command Prompt:
+    1️⃣ Win+R → cmd → Enter
+    2️⃣ cd Desktop\smart-cabin-monitoring
+    3️⃣ python smart_cabin_desktop.py
+
+
+Mac / Linux Kullanıcıları:
+  
+  1️⃣ Terminal'i açın
+  2️⃣ cd ~/Desktop/smart-cabin-monitoring
+  3️⃣ chmod +x baslat.sh
+  4️⃣ ./baslat.sh
+
+
+İLK AÇILIŞTA GÖRECEKLER:
+  
+  ╔═══════════════════════════════════════════════════════════╗
+  ║   🖥️  AKILLI KABİN İZLEME SİSTEMİ - MASAÜSTÜ           ║
+  ╚═══════════════════════════════════════════════════════════╝
+  
+  🚀 Sistem başlatılıyor...
+  
+  📦 Python paketleri kontrol ediliyor...
+  📥 Paketler yükleniyor... (ilk kez - 2-3 dakika)
+  ✅ Tüm Python paketleri hazır
+  
+  📦 Node.js paketleri kontrol ediliyor...
+  📥 Frontend paketleri yükleniyor... (ilk kez - 2-3 dakika)
+  ✅ Frontend paketleri mevcut
+  
+  🗄️  Yerel veritabanı ayarlanıyor...
+  ✅ Veritabanı yapılandırıldı
+  
+  📊 Veritabanı ilk kez dolduruluyor...
+  ✅ Veritabanı dolduruldu
+  
+  🔧 Backend başlatılıyor...
+  ✅ Backend hazır (http://127.0.0.1:8001)
+  
+  🎨 Frontend başlatılıyor...
+  ✅ Frontend hazır (http://127.0.0.1:3000)
+  
+  🌐 Tarayıcı açılıyor...
+  ✅ Uygulama açıldı!
+  
+  ═══════════════════════════════════════════════════════════
+  ✅ SİSTEM ÇALIŞIYOR!
+  ═══════════════════════════════════════════════════════════
+  
+  ⚠️  ÖNEMLİ: Bu pencereyi kapatmayın!
+
+
+═══════════════════════════════════════════════════════════════════════
+  ADIM 4: GİRİŞ YAPIN
+═══════════════════════════════════════════════════════════════════════
+
+Tarayıcıda giriş ekranı açılacak:
+
+  Kullanıcı Adı: admin
+  Şifre: admin123
+  
+"Giriş Yap" butonuna tıklayın.
+
+
+═══════════════════════════════════════════════════════════════════════
+  ADIM 5: ESP32 KAMERANIZI EKLEYİN
+═══════════════════════════════════════════════════════════════════════
+
+1️⃣ ESP32'nizi açın ve IP adresini öğrenin
+   Örnek: 192.168.3.210
+
+2️⃣ Tarayıcıda test edin:
+   http://192.168.3.210/capture
+   (Bir fotoğraf görmelisiniz)
+
+3️⃣ Uygulamada:
+   Dashboard → Ayarlar → Kamera Yönetimi
+
+4️⃣ "Yeni Kamera Ekle" butonuna tıklayın
+
+5️⃣ Bilgileri girin:
+   Kabin Numarası: 1
+   Kamera URL: http://192.168.3.210/capture
+
+6️⃣ "Test Et" butonuna tıklayın
+   ✅ Başarılı olursa görüntü göreceksiniz
+
+7️⃣ "Kaydet" butonuna tıklayın
+
+
+═══════════════════════════════════════════════════════════════════════
+  ADIM 6: (İSTEĞE BAĞLI) TELEGRAM BOT KURUN
+═══════════════════════════════════════════════════════════════════════
+
+1️⃣ Telegram'ı açın
+2️⃣ @BotFather kullanıcısını arayın
+3️⃣ Mesaj gönderin: /newbot
+4️⃣ Bot adı verin: Kabin İzleme Bot
+5️⃣ Username verin: kabin_izleme_bot
+6️⃣ Token'ı kopyalayın
+
+7️⃣ Chat ID öğrenmek için:
+   - Botunuza mesaj gönderin
+   - Tarayıcıda açın:
+     https://api.telegram.org/bot[TOKEN]/getUpdates
+   - "chat":{"id": bölümündeki sayıyı kopyalayın
+
+8️⃣ Uygulamada:
+   Dashboard → Ayarlar → Telegram
+   Token ve Chat ID'yi girin
+   Kaydet
+
+
+═══════════════════════════════════════════════════════════════════════
+  🎉 TAMAMLANDI!
+═══════════════════════════════════════════════════════════════════════
+
+✅ Sisteminiz çalışıyor!
+✅ Dashboard'dan 50 kabini izleyebilirsiniz
+✅ Kameralardan canlı görüntü alabilirsiniz
+✅ PDF raporlar oluşturabilirsiniz
+✅ Telegram bildirimleri alabilirsiniz
+
+
+SONRAKI AÇILIŞLAR:
+  
+  Windows: BASLAT.bat dosyasına çift tıklayın
+  Mac/Linux: ./baslat.sh
+  
+  Açılış süresi: 10-15 saniye ⚡
+
+
+═══════════════════════════════════════════════════════════════════════
+  ❓ SORUN YAŞIYORSANIZ
+═══════════════════════════════════════════════════════════════════════
+
+"Python bulunamadı" hatası:
+  → Python'u yeniden kurun
+  → "Add to PATH" seçeneğini işaretleyin
+
+"Node bulunamadı" hatası:
+  → Node.js'i https://nodejs.org/ adresinden kurun
+
+"Port kullanımda" hatası:
+  → 3000 veya 8001 portunu kullanan programı kapatın
+
+Kamera bağlanamıyor:
+  → ESP32 ve bilgisayar aynı WiFi ağında mı?
+  → Firewall engelliyor olabilir
+  → Kamera URL'sini tarayıcıda test edin
+
+
+═══════════════════════════════════════════════════════════════════════
+
+📚 DETAYLI DOKÜMANTASYON:
+   - KURULUM_REHBERI.md (yeni oluşturdum)
+   - HIZLI_BASLANGIC.md
+   - MASAUSTU_KULLANIM.md
+
+═══════════════════════════════════════════════════════════════════════
+
+Başarılar! 🚀
+Sorularınız varsa çekinmeden sorun!
