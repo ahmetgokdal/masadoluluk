@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-🖥️ AKILLI KABİN İZLEME SİSTEMİ - MASAÜSTÜ UYGULAMASI
-Tek tıkla çalışan, tüm özellikleri içeren masaüstü versiyonu
+AKILLI KABIN IZLEME SISTEMI - MASAUSTU UYGULAMASI
+Tek tikla calisan, tum ozellikleri iceren masaustu versiyonu
 """
 
 import sys
@@ -14,10 +14,23 @@ import subprocess
 from pathlib import Path
 import logging
 
+# Windows console encoding fix
+if sys.platform == 'win32':
+    try:
+        # Windows console encoding'i UTF-8 yap
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+    except:
+        pass
+
 # Logging ayarla
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
