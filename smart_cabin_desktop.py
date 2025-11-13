@@ -58,9 +58,9 @@ class SmartCabinApp:
         if requirements_file.exists():
             logger.info("📝 requirements.txt bulundu, paketler kontrol ediliyor...")
             try:
-                # requirements.txt'ten yükle
+                # requirements.txt'ten yükle (--user flag ile)
                 result = subprocess.run(
-                    [sys.executable, "-m", "pip", "install", "-r", str(requirements_file), "--quiet"],
+                    [sys.executable, "-m", "pip", "install", "-r", str(requirements_file), "--user", "--quiet"],
                     capture_output=True,
                     text=True,
                     timeout=300  # 5 dakika timeout
