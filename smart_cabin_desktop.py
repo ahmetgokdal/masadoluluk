@@ -416,8 +416,9 @@ BROWSER=none
             self.check_python_packages()
             
             if not self.check_node_packages():
-                logger.error("\n❌ Node.js kurulumu gerekli!")
+                logger.error("\n❌ Frontend paketleri yüklenemedi!")
                 logger.error("   Uygulama çalıştırılamıyor.")
+                logger.error("\n💡 Yukarıdaki hata mesajlarını kontrol edin.")
                 return False
             
             # 2. Veritabanı ayarla
