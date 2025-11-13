@@ -164,9 +164,10 @@ class SmartCabinApp:
                         raise Exception("Yarn yükleme başarısız")
                 else:
                     # npm kullan (shell=True ile Windows uyumluluğu)
+                    # --legacy-peer-deps flag'i ile dependency conflict'leri çöz
                     logger.info("📦 npm ile paketler yükleniyor...")
                     result = subprocess.run(
-                        "npm install",
+                        "npm install --legacy-peer-deps",
                         shell=True,
                         timeout=600,
                         capture_output=False,  # Kullanıcı ilerlemeyi görsün
