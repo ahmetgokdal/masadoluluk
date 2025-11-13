@@ -169,7 +169,7 @@ class SmartCabinApp:
                     result = subprocess.run(
                         "npm install --legacy-peer-deps",
                         shell=True,
-                        timeout=600,
+                        timeout=900,  # 15 dakika (ilk yükleme için)
                         capture_output=False,  # Kullanıcı ilerlemeyi görsün
                         text=True
                     )
