@@ -29,9 +29,19 @@ class AsyncMongitaWrapper:
         """insert_many operasyonu"""
         return await asyncio.to_thread(self._collection.insert_many, *args, **kwargs)
     
-    async def update_one(self, *args, **kwargs):
+    async def update_one(self, filter_query, update_query, **kwargs):
         """update_one operasyonu"""
-        return await asyncio.to_thread(self._collection.update_one, *args, **kwargs)
+        # Mongita upsert desteği
+        if kwargs.get('upsert'):
+            existing = await asyncio.to_thread(self._collection.find_one, filter_query)
+            if not existing:
+                # Insert new document
+                doc = filter_query.copy()
+                if '$set' in update_query:
+                    doc.update(update_query['$set'])
+                return await asyncio.to_thread(self._collection.insert_one, doc)
+        
+        return await asyncio.to_thread(self._collection.update_one, filter_query, update_query, **kwargs)
     
     async def update_many(self, *args, **kwargs):
         """update_many operasyonu"""
