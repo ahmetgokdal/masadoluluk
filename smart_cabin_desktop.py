@@ -358,7 +358,11 @@ BROWSER=none
         try:
             # 1. Paket kontrolleri
             self.check_python_packages()
-            self.check_node_packages()
+            
+            if not self.check_node_packages():
+                logger.error("\n❌ Node.js kurulumu gerekli!")
+                logger.error("   Uygulama çalıştırılamıyor.")
+                return False
             
             # 2. Veritabanı ayarla
             self.setup_local_mongodb()
