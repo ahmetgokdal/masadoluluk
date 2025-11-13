@@ -68,12 +68,31 @@ class AsyncMongitaWrapper:
 class AsyncMongitaCursor:
     """Mongita cursor için async wrapper"""
     
-    def __init__(self, cursor):
+    def __init__(self, cursor, collection=None, filter_query=None):
         self._cursor = cursor if isinstance(cursor, list) else list(cursor)
+        self._collection = collection
+        self._filter_query = filter_query if filter_query is not None else {}
+        self._sort_params = None
     
     async def to_list(self, length=None):
         """Cursor'dan liste oluştur"""
-        return self._cursor[:length] if length else self._cursor
+        data = self._cursor
+        
+        # Apply sort if specified
+        if self._sort_params:
+            field, direction = self._sort_params
+            reverse = (direction == -1)
+            try:
+                data = sorted(data, key=lambda x: x.get(field, 0), reverse=reverse)
+            except:
+                pass
+        
+        return data[:length] if length else data
+    
+    def sort(self, field, direction=1):
+        """Sort cursor results"""
+        self._sort_params = (field, direction)
+        return self
 
 
 class AsyncMongitaDatabase:
