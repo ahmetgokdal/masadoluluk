@@ -272,6 +272,10 @@ CORS_ORIGINS=*
         os.environ['DB_NAME'] = "smart_cabin_db"
         os.environ['CORS_ORIGINS'] = "*"
         
+        # Backend dizinini sys.path'e ekle
+        if str(BACKEND_DIR) not in sys.path:
+            sys.path.insert(0, str(BACKEND_DIR))
+        
         original_dir = os.getcwd()
         os.chdir(BACKEND_DIR)
         
