@@ -53,32 +53,55 @@ class SmartCabinApp:
         """Backend için gerekli Python paketlerini kontrol et"""
         logger.info("📦 Python paketleri kontrol ediliyor...")
         
-        required_packages = [
-            'fastapi', 'uvicorn', 'mongita', 'opencv-python-headless', 
-            'motor', 'reportlab', 'python-telegram-bot'
-        ]
-        
-        missing = []
-        for package in required_packages:
+        # Requirements.txt varsa kullan
+        requirements_file = BACKEND_DIR / "requirements.txt"
+        if requirements_file.exists():
+            logger.info("📝 requirements.txt bulundu, paketler kontrol ediliyor...")
             try:
-                if package == 'opencv-python-headless':
-                    __import__('cv2')
-                elif package == 'python-telegram-bot':
-                    __import__('telegram')
+                # requirements.txt'ten yükle
+                result = subprocess.run(
+                    [sys.executable, "-m", "pip", "install", "-r", str(requirements_file), "--quiet"],
+                    capture_output=True,
+                    text=True,
+                    timeout=300  # 5 dakika timeout
+                )
+                if result.returncode == 0:
+                    logger.info("✅ Tüm Python paketleri hazır")
                 else:
-                    __import__(package)
-            except ImportError:
-                missing.append(package)
-        
-        if missing:
-            logger.warning(f"⚠️  Eksik paketler: {', '.join(missing)}")
-            logger.info("📥 Paketler yükleniyor...")
-            subprocess.run([
-                sys.executable, "-m", "pip", "install", "--quiet"
-            ] + missing)
-            logger.info("✅ Paketler yüklendi")
+                    logger.warning(f"⚠️  Bazı paketler yüklenemedi: {result.stderr}")
+            except subprocess.TimeoutExpired:
+                logger.warning("⚠️  Paket yükleme zaman aşımına uğradı")
+            except Exception as e:
+                logger.warning(f"⚠️  Paket yükleme hatası: {e}")
         else:
-            logger.info("✅ Tüm Python paketleri mevcut")
+            # Manuel kontrol
+            logger.info("📋 Manuel paket kontrolü...")
+            required_packages = [
+                'fastapi', 'uvicorn', 'mongita', 'opencv-python-headless', 
+                'motor', 'reportlab', 'python-telegram-bot', 'pywebview'
+            ]
+            
+            missing = []
+            for package in required_packages:
+                try:
+                    if package == 'opencv-python-headless':
+                        __import__('cv2')
+                    elif package == 'python-telegram-bot':
+                        __import__('telegram')
+                    else:
+                        __import__(package)
+                except ImportError:
+                    missing.append(package)
+            
+            if missing:
+                logger.warning(f"⚠️  Eksik paketler: {', '.join(missing)}")
+                logger.info("📥 Paketler yükleniyor...")
+                subprocess.run([
+                    sys.executable, "-m", "pip", "install", "--quiet"
+                ] + missing)
+                logger.info("✅ Paketler yüklendi")
+            else:
+                logger.info("✅ Tüm Python paketleri mevcut")
         
         return True
     
