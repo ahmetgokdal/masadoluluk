@@ -24,10 +24,14 @@ from tracker_service import tracker_service, active_connections
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# Database connection (MongoDB or Mongita)
+try:
+    from db_connector import db, client
+except ImportError:
+    # Fallback to MongoDB if db_connector not available
+    mongo_url = os.environ['MONGO_URL']
+    client = AsyncIOMotorClient(mongo_url)
+    db = client[os.environ['DB_NAME']]
 
 # Set database for auth and tracker modules
 auth.set_database(db)
