@@ -1,0 +1,364 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+🖥️ AKILLI KABİN İZLEME SİSTEMİ - MASAÜSTÜ UYGULAMASI
+Tek tıkla çalışan, tüm özellikleri içeren masaüstü versiyonu
+"""
+
+import sys
+import os
+import threading
+import time
+import webbrowser
+import subprocess
+from pathlib import Path
+import logging
+
+# Logging ayarla
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Dizinler
+BASE_DIR = Path(__file__).parent
+BACKEND_DIR = BASE_DIR / "backend"
+FRONTEND_DIR = BASE_DIR / "frontend"
+DATA_DIR = BASE_DIR / "data"
+DATA_DIR.mkdir(exist_ok=True)
+
+print("""
+╔══════════════════════════════════════════════════════════════╗
+║                                                              ║
+║     🏢  AKILLI KABİN İZLEME SİSTEMİ - MASAÜSTÜ             ║
+║                                                              ║
+║     📊 Dashboard | 📹 Kamera İzleme | 👥 Öğrenci Takibi    ║
+║                                                              ║
+╚══════════════════════════════════════════════════════════════╝
+
+🚀 Sistem başlatılıyor...
+""")
+
+class SmartCabinApp:
+    """Ana masaüstü uygulama sınıfı"""
+    
+    def __init__(self):
+        self.backend_process = None
+        self.frontend_process = None
+        self.backend_ready = False
+        self.frontend_ready = False
+        
+    def check_python_packages(self):
+        """Backend için gerekli Python paketlerini kontrol et"""
+        logger.info("📦 Python paketleri kontrol ediliyor...")
+        
+        required_packages = [
+            'fastapi', 'uvicorn', 'mongita', 'opencv-python-headless', 
+            'motor', 'reportlab', 'python-telegram-bot'
+        ]
+        
+        missing = []
+        for package in required_packages:
+            try:
+                if package == 'opencv-python-headless':
+                    __import__('cv2')
+                elif package == 'python-telegram-bot':
+                    __import__('telegram')
+                else:
+                    __import__(package)
+            except ImportError:
+                missing.append(package)
+        
+        if missing:
+            logger.warning(f"⚠️  Eksik paketler: {', '.join(missing)}")
+            logger.info("📥 Paketler yükleniyor...")
+            subprocess.run([
+                sys.executable, "-m", "pip", "install", "--quiet"
+            ] + missing)
+            logger.info("✅ Paketler yüklendi")
+        else:
+            logger.info("✅ Tüm Python paketleri mevcut")
+        
+        return True
+    
+    def check_node_packages(self):
+        """Frontend için Node.js paketlerini kontrol et"""
+        logger.info("📦 Node.js paketleri kontrol ediliyor...")
+        
+        node_modules = FRONTEND_DIR / "node_modules"
+        if not node_modules.exists():
+            logger.info("📥 Frontend paketleri yükleniyor (ilk kez - birkaç dakika sürebilir)...")
+            os.chdir(FRONTEND_DIR)
+            
+            # Önce yarn var mı kontrol et
+            try:
+                subprocess.run(["yarn", "--version"], capture_output=True, check=True)
+                subprocess.run(["yarn", "install"], check=True)
+            except:
+                # Yarn yoksa npm kullan
+                logger.info("Yarn bulunamadı, npm kullanılıyor...")
+                subprocess.run(["npm", "install"], check=True)
+            
+            os.chdir(BASE_DIR)
+            logger.info("✅ Frontend paketleri yüklendi")
+        else:
+            logger.info("✅ Frontend paketleri mevcut")
+        
+        return True
+    
+    def setup_local_mongodb(self):
+        """Yerleşik file-based MongoDB (mongita) ayarla"""
+        logger.info("🗄️  Yerel veritabanı ayarlanıyor...")
+        
+        # .env dosyasını güncelle
+        env_file = BACKEND_DIR / ".env"
+        env_content = f"""# Yerleşik MongoDB (Mongita) - Dosya Tabanlı
+MONGO_URL="mongita:///{DATA_DIR.absolute()}/cabin_db"
+DB_NAME="smart_cabin_db"
+CORS_ORIGINS="*"
+"""
+        env_file.write_text(env_content)
+        logger.info("✅ Veritabanı yapılandırıldı")
+        
+        return True
+    
+    def seed_database_if_needed(self):
+        """İlk çalıştırmada veritabanını doldur"""
+        seed_flag = DATA_DIR / ".db_seeded"
+        
+        if not seed_flag.exists():
+            logger.info("📊 Veritabanı ilk kez dolduruluyor...")
+            os.chdir(BACKEND_DIR)
+            try:
+                subprocess.run([sys.executable, "seed_data.py"], check=True)
+                seed_flag.touch()
+                logger.info("✅ Veritabanı dolduruldu")
+            except Exception as e:
+                logger.warning(f"⚠️  Seed hatası (devam ediliyor): {e}")
+            finally:
+                os.chdir(BASE_DIR)
+        else:
+            logger.info("✅ Veritabanı mevcut")
+        
+        return True
+    
+    def start_backend(self):
+        """Backend sunucusunu başlat"""
+        logger.info("🔧 Backend başlatılıyor...")
+        
+        os.chdir(BACKEND_DIR)
+        
+        # Uvicorn'u thread içinde çalıştır
+        def run_backend():
+            import uvicorn
+            uvicorn.run(
+                "server:app",
+                host="127.0.0.1",
+                port=8001,
+                log_level="warning",
+                reload=False
+            )
+        
+        backend_thread = threading.Thread(target=run_backend, daemon=True)
+        backend_thread.start()
+        
+        # Backend'in hazır olmasını bekle
+        logger.info("⏳ Backend hazırlanıyor...")
+        for i in range(30):
+            try:
+                import requests
+                response = requests.get("http://127.0.0.1:8001/api/stats", timeout=1)
+                if response.status_code in [200, 401, 403]:  # API çalışıyor (auth gerekli ama hazır)
+                    self.backend_ready = True
+                    logger.info("✅ Backend hazır (http://127.0.0.1:8001)")
+                    break
+            except:
+                time.sleep(1)
+        
+        os.chdir(BASE_DIR)
+        
+        if not self.backend_ready:
+            logger.warning("⚠️  Backend başlatılamadı, devam ediliyor...")
+        
+        return self.backend_ready
+    
+    def start_frontend(self):
+        """Frontend sunucusunu başlat"""
+        logger.info("🎨 Frontend başlatılıyor...")
+        
+        os.chdir(FRONTEND_DIR)
+        
+        # .env.local dosyasını oluştur
+        env_file = FRONTEND_DIR / ".env.local"
+        env_content = """REACT_APP_BACKEND_URL=http://127.0.0.1:8001
+PORT=3000
+BROWSER=none
+"""
+        env_file.write_text(env_content)
+        
+        # React development server'ı başlat
+        try:
+            # Yarn varsa yarn kullan
+            subprocess.run(["yarn", "--version"], capture_output=True, check=True)
+            self.frontend_process = subprocess.Popen(
+                ["yarn", "start"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+        except:
+            # Yoksa npm kullan
+            self.frontend_process = subprocess.Popen(
+                ["npm", "start"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+        
+        # Frontend'in hazır olmasını bekle
+        logger.info("⏳ Frontend hazırlanıyor (15-20 saniye)...")
+        for i in range(40):
+            try:
+                import requests
+                response = requests.get("http://127.0.0.1:3000", timeout=1)
+                if response.status_code == 200:
+                    self.frontend_ready = True
+                    logger.info("✅ Frontend hazır (http://127.0.0.1:3000)")
+                    break
+            except:
+                time.sleep(1)
+        
+        os.chdir(BASE_DIR)
+        
+        if not self.frontend_ready:
+            logger.warning("⚠️  Frontend başlatılamadı")
+            return False
+        
+        return True
+    
+    def open_app(self):
+        """Uygulamayı aç"""
+        logger.info("🌐 Uygulama açılıyor...")
+        
+        try:
+            # pywebview ile native pencere aç
+            import webview
+            
+            logger.info("✅ Native masaüstü penceresi açılıyor...")
+            webview.create_window(
+                title="🏢 Akıllı Kabin İzleme Sistemi",
+                url="http://127.0.0.1:3000",
+                width=1400,
+                height=900,
+                resizable=True,
+                fullscreen=False,
+                min_size=(1200, 800)
+            )
+            webview.start()
+            
+        except ImportError:
+            # pywebview yoksa tarayıcıda aç
+            logger.info("✅ Tarayıcıda açılıyor...")
+            time.sleep(2)
+            webbrowser.open("http://127.0.0.1:3000")
+            
+            # Kullanıcıya bilgi ver
+            print("""
+═══════════════════════════════════════════════════════════════
+✅ SİSTEM ÇALIŞIYOR!
+═══════════════════════════════════════════════════════════════
+
+📊 Dashboard: http://127.0.0.1:3000
+🔐 Giriş Bilgileri:
+   Kullanıcı Adı: admin
+   Şifre: admin123
+
+📹 Kamera URL: http://192.168.3.210/capture
+   (Ayarlar sayfasından kamerayı ekleyin)
+
+⚠️  ÖNEMLİ: Bu pencereyi kapatmayın!
+   Kapatırsanız sistem durur.
+
+🛑 Durdurmak için: CTRL+C tuşlarına basın
+═══════════════════════════════════════════════════════════════
+""")
+            
+            # Sonsuz döngü - çalışmaya devam et
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                logger.info("\n⏹️  Durdurma komutu alındı...")
+    
+    def cleanup(self):
+        """Temizlik işlemleri"""
+        logger.info("\n🛑 Sistem kapatılıyor...")
+        
+        if self.frontend_process:
+            try:
+                self.frontend_process.terminate()
+                self.frontend_process.wait(timeout=5)
+            except:
+                self.frontend_process.kill()
+        
+        logger.info("✅ Temizlik tamamlandı")
+    
+    def run(self):
+        """Uygulamayı çalıştır"""
+        try:
+            # 1. Paket kontrolleri
+            self.check_python_packages()
+            self.check_node_packages()
+            
+            # 2. Veritabanı ayarla
+            self.setup_local_mongodb()
+            self.seed_database_if_needed()
+            
+            # 3. Backend başlat
+            self.start_backend()
+            
+            # 4. Frontend başlat
+            if not self.start_frontend():
+                logger.error("❌ Frontend başlatılamadı!")
+                return False
+            
+            # 5. Uygulamayı aç
+            self.open_app()
+            
+            return True
+            
+        except KeyboardInterrupt:
+            logger.info("\n⏹️  Kullanıcı tarafından durduruldu")
+        except Exception as e:
+            logger.error(f"\n❌ Hata: {e}")
+            import traceback
+            traceback.print_exc()
+        finally:
+            self.cleanup()
+            logger.info("👋 Güle güle!\n")
+        
+        return False
+
+
+def main():
+    """Ana fonksiyon"""
+    app = SmartCabinApp()
+    
+    # Windows'ta console encoding'i UTF-8 yap
+    if sys.platform == 'win32':
+        try:
+            import locale
+            if locale.getpreferredencoding() != 'UTF-8':
+                sys.stdout.reconfigure(encoding='utf-8')
+                sys.stderr.reconfigure(encoding='utf-8')
+        except:
+            pass
+    
+    success = app.run()
+    
+    if not success:
+        input("\nHata oluştu. Çıkmak için Enter'a basın...")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
