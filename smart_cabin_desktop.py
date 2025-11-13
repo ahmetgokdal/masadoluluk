@@ -111,9 +111,18 @@ class SmartCabinApp:
         """Frontend için Node.js paketlerini kontrol et"""
         logger.info("📦 Node.js paketleri kontrol ediliyor...")
         
-        # Node.js kurulu mu kontrol et
+        # Node.js kurulu mu kontrol et (shell=True ile Windows uyumluluğu)
         try:
-            subprocess.run(["node", "--version"], capture_output=True, check=True)
+            result = subprocess.run(
+                "node --version", 
+                shell=True, 
+                capture_output=True, 
+                text=True,
+                timeout=5
+            )
+            if result.returncode != 0:
+                raise Exception("Node.js bulunamadı")
+            logger.info(f"✅ Node.js kurulu: {result.stdout.strip()}")
         except:
             logger.error("❌ Node.js bulunamadı!")
             logger.error("   Node.js kurmanız gerekiyor:")
@@ -125,33 +134,61 @@ class SmartCabinApp:
         
         node_modules = FRONTEND_DIR / "node_modules"
         if not node_modules.exists():
-            logger.info("📥 Frontend paketleri yükleniyor (ilk kez - birkaç dakika sürebilir)...")
+            logger.info("📥 Frontend paketleri yükleniyor (ilk kez - 5-10 dakika sürebilir)...")
+            logger.info("   ⏳ Lütfen sabırla bekleyin...")
             
             try:
+                original_dir = os.getcwd()
                 os.chdir(FRONTEND_DIR)
                 
-                # Önce yarn var mı kontrol et
-                try:
-                    subprocess.run(["yarn", "--version"], capture_output=True, check=True, timeout=5)
-                    logger.info("Yarn ile paketler yükleniyor...")
-                    subprocess.run(["yarn", "install"], check=True, timeout=600)
-                except:
-                    # Yarn yoksa npm kullan
-                    logger.info("Yarn bulunamadı, npm kullanılıyor...")
-                    try:
-                        subprocess.run(["npm", "install"], check=True, timeout=600)
-                    except Exception as npm_error:
-                        logger.error(f"❌ npm ile yükleme başarısız: {npm_error}")
-                        logger.error("   Manuel yükleme için:")
-                        logger.error(f"   cd {FRONTEND_DIR}")
-                        logger.error("   npm install")
-                        return False
+                # Yarn'ı kontrol et (shell=True ile)
+                yarn_check = subprocess.run(
+                    "yarn --version",
+                    shell=True,
+                    capture_output=True,
+                    timeout=5
+                )
                 
-                os.chdir(BASE_DIR)
+                if yarn_check.returncode == 0:
+                    # Yarn var, onu kullan
+                    logger.info("✅ Yarn bulundu, paketler yükleniyor...")
+                    result = subprocess.run(
+                        "yarn install",
+                        shell=True,
+                        timeout=600,
+                        capture_output=True,
+                        text=True
+                    )
+                    if result.returncode != 0:
+                        logger.error(f"Yarn hatası: {result.stderr}")
+                        raise Exception("Yarn yükleme başarısız")
+                else:
+                    # npm kullan (shell=True ile Windows uyumluluğu)
+                    logger.info("📦 npm ile paketler yükleniyor...")
+                    result = subprocess.run(
+                        "npm install",
+                        shell=True,
+                        timeout=600,
+                        capture_output=False,  # Kullanıcı ilerlemeyi görsün
+                        text=True
+                    )
+                    if result.returncode != 0:
+                        raise Exception("npm yükleme başarısız")
+                
+                os.chdir(original_dir)
                 logger.info("✅ Frontend paketleri yüklendi")
+                
+            except subprocess.TimeoutExpired:
+                logger.error("❌ Paket yükleme zaman aşımına uğradı")
+                logger.error("   İnternet bağlantınızı kontrol edin")
+                os.chdir(original_dir)
+                return False
             except Exception as e:
                 logger.error(f"❌ Frontend paket yükleme hatası: {e}")
-                os.chdir(BASE_DIR)
+                logger.error("\n💡 Manuel yükleme için Command Prompt'ta:")
+                logger.error(f"   cd {FRONTEND_DIR}")
+                logger.error("   npm install")
+                os.chdir(original_dir)
                 return False
         else:
             logger.info("✅ Frontend paketleri mevcut")
