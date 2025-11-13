@@ -275,6 +275,7 @@ CORS_ORIGINS="*"
         """Frontend sunucusunu başlat"""
         logger.info("🎨 Frontend başlatılıyor...")
         
+        original_dir = os.getcwd()
         os.chdir(FRONTEND_DIR)
         
         # .env.local dosyasını oluştur
@@ -285,22 +286,37 @@ BROWSER=none
 """
         env_file.write_text(env_content)
         
-        # React development server'ı başlat
+        # React development server'ı başlat (shell=True ile Windows uyumluluğu)
         try:
             # Yarn varsa yarn kullan
-            subprocess.run(["yarn", "--version"], capture_output=True, check=True)
-            self.frontend_process = subprocess.Popen(
-                ["yarn", "start"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+            yarn_check = subprocess.run(
+                "yarn --version",
+                shell=True,
+                capture_output=True,
+                timeout=5
             )
-        except:
-            # Yoksa npm kullan
-            self.frontend_process = subprocess.Popen(
-                ["npm", "start"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
-            )
+            
+            if yarn_check.returncode == 0:
+                logger.info("📦 Yarn ile frontend başlatılıyor...")
+                self.frontend_process = subprocess.Popen(
+                    "yarn start",
+                    shell=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+            else:
+                # npm kullan
+                logger.info("📦 npm ile frontend başlatılıyor...")
+                self.frontend_process = subprocess.Popen(
+                    "npm start",
+                    shell=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+        except Exception as e:
+            logger.error(f"❌ Frontend başlatma hatası: {e}")
+            os.chdir(original_dir)
+            return False
         
         # Frontend'in hazır olmasını bekle
         logger.info("⏳ Frontend hazırlanıyor (15-20 saniye)...")
