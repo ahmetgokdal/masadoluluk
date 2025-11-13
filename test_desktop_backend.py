@@ -33,18 +33,26 @@ print("✅ Seed successful")
 
 # Backend'i thread'de başlat
 print("\n🔧 Starting backend...")
+
+# Backend dizinine geç
+backend_dir = Path(__file__).parent / 'backend'
+os.chdir(backend_dir)
+sys.path.insert(0, str(backend_dir))
+
 def run_backend():
     import uvicorn
     uvicorn.run(
         "server:app",
         host="127.0.0.1",
         port=8888,
-        log_level="error"
+        log_level="error",
+        reload=False
     )
 
 backend_thread = threading.Thread(target=run_backend, daemon=True)
 backend_thread.start()
-time.sleep(3)
+print("⏳ Waiting for backend to start...")
+time.sleep(5)
 
 # Test API calls
 print("\n🧪 Testing API endpoints...")
