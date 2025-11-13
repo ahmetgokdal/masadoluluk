@@ -202,15 +202,24 @@ class SmartCabinApp:
         """Yerleşik file-based MongoDB (mongita) ayarla"""
         logger.info("🗄️  Yerel veritabanı ayarlanıyor...")
         
-        # .env dosyasını güncelle
+        # .env dosyasını oluştur/güncelle
         env_file = BACKEND_DIR / ".env"
+        
+        # Windows path'lerini düzelt (\ yerine /)
+        data_path = str(DATA_DIR.absolute()).replace('\\', '/')
+        
         env_content = f"""# Yerleşik MongoDB (Mongita) - Dosya Tabanlı
-MONGO_URL="mongita:///{DATA_DIR.absolute()}/cabin_db"
-DB_NAME="smart_cabin_db"
-CORS_ORIGINS="*"
+MONGO_URL=mongita:///{data_path}/cabin_db
+DB_NAME=smart_cabin_db
+CORS_ORIGINS=*
 """
-        env_file.write_text(env_content)
-        logger.info("✅ Veritabanı yapılandırıldı")
+        try:
+            env_file.write_text(env_content, encoding='utf-8')
+            logger.info(f"✅ .env dosyası oluşturuldu: {env_file}")
+            logger.info("✅ Veritabanı yapılandırıldı")
+        except Exception as e:
+            logger.error(f"⚠️  .env dosyası oluşturulamadı: {e}")
+            logger.warning("Devam ediliyor...")
         
         return True
     
