@@ -138,7 +138,7 @@ def get_database():
             client = MongitaClientDisk(db_path)
             raw_db = client[db_name]
             db = AsyncMongitaDatabase(raw_db)
-            print(f"✅ Mongita (file-based) bağlantısı: {db_path}/{db_name}")
+            print(f"[OK] Mongita (file-based) connected: {db_path}/{db_name}")
         except ImportError:
             print("⚠️  Mongita bulunamadı, MongoDB'ye geçiliyor...")
             client = AsyncIOMotorClient('mongodb://localhost:27017')
