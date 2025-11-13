@@ -1,0 +1,125 @@
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║          🚀 5 ADIMDA MASAÜSTÜ UYGULAMANIZI ÇALIŞTIRIN              ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  ADIM 1: DOSYALARI İNDİRİN                                          │
+└──────────────────────────────────────────────────────────────────────┘
+
+  Emergent ekranında:
+  
+  ┌─────────────────────────────────────┐
+  │  [💾 Save to GitHub]  butonuna tıkla│
+  └─────────────────────────────────────┘
+  
+  Repo adı: smart-cabin-monitoring
+  
+  GitHub'dan ZIP indir → Desktop'a çıkar
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  ADIM 2: PYTHON KURU (3.8+)                                         │
+└──────────────────────────────────────────────────────────────────────┘
+
+  🔗 https://www.python.org/downloads/
+  
+  ⚠️  ÖNEMLİ: "Add Python to PATH" seçeneğini işaretle!
+  
+  Test: python --version
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  ADIM 3: NODE.JS KURU (14+)                                         │
+└──────────────────────────────────────────────────────────────────────┘
+
+  🔗 https://nodejs.org/
+  
+  LTS versiyonu indir ve kur
+  
+  Test: node --version
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  ADIM 4: UYGULAMAYI BAŞLAT                                          │
+└──────────────────────────────────────────────────────────────────────┘
+
+  Windows:
+  ┌──────────────────────────────────┐
+  │  BASLAT.bat ← ÇİFT TIKLA         │
+  └──────────────────────────────────┘
+  
+  Mac/Linux:
+  Terminal'de: ./baslat.sh
+  
+  ⏱️  İlk açılış: 3-5 dakika
+  ⏱️  Sonraki: 10-15 saniye
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  ADIM 5: GİRİŞ YAP                                                  │
+└──────────────────────────────────────────────────────────────────────┘
+
+  Tarayıcı otomatik açılır
+  
+  ┌──────────────────────────────────┐
+  │  Kullanıcı: admin                │
+  │  Şifre: admin123                 │
+  │                                  │
+  │        [Giriş Yap]               │
+  └──────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════
+  🎉 TAMAMLANDI! Dashboard açıldı!
+═══════════════════════════════════════════════════════════════════════
+
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  BONUS: ESP32 KAMERA EKLE                                           │
+└──────────────────────────────────────────────────────────────────────┘
+
+  1. Dashboard → Ayarlar → Kameralar
+  2. "Ekle" butonuna tıkla
+  3. Kabin No: 1
+     Kamera URL: http://192.168.3.210/capture
+  4. "Test Et" → "Kaydet"
+
+
+═══════════════════════════════════════════════════════════════════════
+  📚 DETAYLI REHBERLER
+═══════════════════════════════════════════════════════════════════════
+
+  📄 ADIM_ADIM.txt          - Görsel adım adım rehber
+  📄 KURULUM_REHBERI.md     - Detaylı kurulum talimatları
+  📄 HIZLI_BASLANGIC.md     - 3 adımda başlangıç
+  📄 DOSYA_REHBERI.md       - Hangi dosya ne işe yarar
+  📄 MASAUSTU_KULLANIM.md   - Tam kullanım kılavuzu
+
+
+═══════════════════════════════════════════════════════════════════════
+  ❓ SORUN MU YAŞIYORSUNUZ?
+═══════════════════════════════════════════════════════════════════════
+
+  ❌ "Python bulunamadı"
+     → Python'u yeniden kur, "Add to PATH" seç
+
+  ❌ "Node bulunamadı"
+     → Node.js'i https://nodejs.org/ adresinden kur
+
+  ❌ "Port kullanımda"
+     → 3000 veya 8001 portunu kullanan programı kapat
+
+  ❌ Kamera bağlanamıyor
+     → ESP32 ve PC aynı WiFi'de mi kontrol et
+
+
+═══════════════════════════════════════════════════════════════════════
+
+  📧 YARDIM: Bana soru sormaktan çekinmeyin!
+
+  Başarılar! 🚀
+
+═══════════════════════════════════════════════════════════════════════
