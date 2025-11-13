@@ -361,8 +361,8 @@ BROWSER=none
             return False
         
         # Frontend'in hazır olmasını bekle
-        logger.info("⏳ Frontend hazırlanıyor (15-20 saniye)...")
-        for i in range(40):
+        logger.info("⏳ Frontend hazırlanıyor (20-30 saniye)...")
+        for i in range(60):
             try:
                 import requests
                 response = requests.get("http://127.0.0.1:3000", timeout=1)
@@ -370,13 +370,18 @@ BROWSER=none
                     self.frontend_ready = True
                     logger.info("✅ Frontend hazır (http://127.0.0.1:3000)")
                     break
-            except:
+            except Exception as e:
+                if i % 5 == 0:  # Her 5 saniyede bir durum göster
+                    logger.debug(f"Frontend bekleniyor... ({i} saniye)")
                 time.sleep(1)
         
         os.chdir(original_dir)
         
         if not self.frontend_ready:
-            logger.warning("⚠️  Frontend başlatılamadı")
+            logger.warning("⚠️  Frontend başlatılamadı (timeout)")
+            logger.info("💡 Frontend manuel başlatmak için:")
+            logger.info(f"   cd {FRONTEND_DIR}")
+            logger.info("   npm start")
             return False
         
         return True
