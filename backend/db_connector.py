@@ -12,10 +12,10 @@ class AsyncMongitaWrapper:
     def __init__(self, collection):
         self._collection = collection
     
-    async def find(self, *args, **kwargs):
-        """find operasyonu"""
-        result = await asyncio.to_thread(self._collection.find, *args, **kwargs)
-        return AsyncMongitaCursor(result)
+    def find(self, *args, **kwargs):
+        """find operasyonu - returns async cursor"""
+        cursor = self._collection.find(*args, **kwargs)
+        return AsyncMongitaCursor(cursor)
     
     async def find_one(self, *args, **kwargs):
         """find_one operasyonu"""
