@@ -1,8 +1,87 @@
 """
 Veritabanı bağlantı modülü - MongoDB ve Mongita desteği
+Mongita'yı async uyumlu wrapper ile kullanır
 """
 import os
+import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
+
+class AsyncMongitaWrapper:
+    """Mongita için async wrapper - Motor API'si ile uyumlu"""
+    
+    def __init__(self, collection):
+        self._collection = collection
+    
+    async def find(self, *args, **kwargs):
+        """find operasyonu"""
+        result = await asyncio.to_thread(self._collection.find, *args, **kwargs)
+        return AsyncMongitaCursor(result)
+    
+    async def find_one(self, *args, **kwargs):
+        """find_one operasyonu"""
+        return await asyncio.to_thread(self._collection.find_one, *args, **kwargs)
+    
+    async def insert_one(self, *args, **kwargs):
+        """insert_one operasyonu"""
+        return await asyncio.to_thread(self._collection.insert_one, *args, **kwargs)
+    
+    async def insert_many(self, *args, **kwargs):
+        """insert_many operasyonu"""
+        return await asyncio.to_thread(self._collection.insert_many, *args, **kwargs)
+    
+    async def update_one(self, *args, **kwargs):
+        """update_one operasyonu"""
+        return await asyncio.to_thread(self._collection.update_one, *args, **kwargs)
+    
+    async def update_many(self, *args, **kwargs):
+        """update_many operasyonu"""
+        return await asyncio.to_thread(self._collection.update_many, *args, **kwargs)
+    
+    async def delete_one(self, *args, **kwargs):
+        """delete_one operasyonu"""
+        return await asyncio.to_thread(self._collection.delete_one, *args, **kwargs)
+    
+    async def delete_many(self, *args, **kwargs):
+        """delete_many operasyonu"""
+        return await asyncio.to_thread(self._collection.delete_many, *args, **kwargs)
+    
+    async def count_documents(self, *args, **kwargs):
+        """count_documents operasyonu"""
+        return await asyncio.to_thread(self._collection.count_documents, *args, **kwargs)
+    
+    async def aggregate(self, *args, **kwargs):
+        """aggregate operasyonu"""
+        result = await asyncio.to_thread(self._collection.aggregate, *args, **kwargs)
+        return AsyncMongitaCursor(result)
+
+
+class AsyncMongitaCursor:
+    """Mongita cursor için async wrapper"""
+    
+    def __init__(self, cursor):
+        self._cursor = cursor if isinstance(cursor, list) else list(cursor)
+    
+    async def to_list(self, length=None):
+        """Cursor'dan liste oluştur"""
+        return self._cursor[:length] if length else self._cursor
+
+
+class AsyncMongitaDatabase:
+    """Mongita database için async wrapper"""
+    
+    def __init__(self, db):
+        self._db = db
+    
+    def __getattr__(self, name):
+        """Collection erişimi"""
+        collection = self._db[name]
+        return AsyncMongitaWrapper(collection)
+    
+    def __getitem__(self, name):
+        """Collection erişimi (dict syntax)"""
+        collection = self._db[name]
+        return AsyncMongitaWrapper(collection)
+
 
 def get_database():
     """
@@ -15,11 +94,26 @@ def get_database():
     # Mongita mı MongoDB mu kontrol et
     if mongo_url.startswith('mongita://'):
         # Mongita - file-based
-        from mongita import MongitaClientDisk
-        db_path = mongo_url.replace('mongita:///', '').replace('mongita://', '')
-        client = MongitaClientDisk(db_path)
-        db = client[db_name]
-        print(f"✅ Mongita (file-based) bağlantısı: {db_path}/{db_name}")
+        try:
+            from mongita import MongitaClientDisk
+            db_path = mongo_url.replace('mongita:///', '').replace('mongita://', '')
+            
+            # Path'i normalize et
+            if not os.path.isabs(db_path):
+                db_path = os.path.abspath(db_path)
+            
+            # Dizini oluştur
+            os.makedirs(db_path, exist_ok=True)
+            
+            client = MongitaClientDisk(db_path)
+            raw_db = client[db_name]
+            db = AsyncMongitaDatabase(raw_db)
+            print(f"✅ Mongita (file-based) bağlantısı: {db_path}/{db_name}")
+        except ImportError:
+            print("⚠️  Mongita bulunamadı, MongoDB'ye geçiliyor...")
+            client = AsyncIOMotorClient('mongodb://localhost:27017')
+            db = client[db_name]
+            print(f"✅ MongoDB bağlantısı (fallback): mongodb://localhost:27017/{db_name}")
     else:
         # Motor - async MongoDB
         client = AsyncIOMotorClient(mongo_url)
