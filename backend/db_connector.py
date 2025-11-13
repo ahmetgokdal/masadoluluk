@@ -59,10 +59,10 @@ class AsyncMongitaWrapper:
         """count_documents operasyonu"""
         return await asyncio.to_thread(self._collection.count_documents, *args, **kwargs)
     
-    async def aggregate(self, *args, **kwargs):
-        """aggregate operasyonu"""
-        result = await asyncio.to_thread(self._collection.aggregate, *args, **kwargs)
-        return AsyncMongitaCursor(result)
+    def aggregate(self, *args, **kwargs):
+        """aggregate operasyonu - returns async cursor"""
+        cursor = self._collection.aggregate(*args, **kwargs)
+        return AsyncMongitaCursor(cursor)
 
 
 class AsyncMongitaCursor:
