@@ -148,7 +148,7 @@ def get_database():
         # Motor - async MongoDB
         client = AsyncIOMotorClient(mongo_url)
         db = client[db_name]
-        print(f"✅ MongoDB bağlantısı: {mongo_url}/{db_name}")
+        print(f"[OK] MongoDB connection: {mongo_url}/{db_name}")
     
     return db, client
 
