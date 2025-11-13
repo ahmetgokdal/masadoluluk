@@ -302,7 +302,7 @@ CORS_ORIGINS=*
             except:
                 time.sleep(1)
         
-        os.chdir(BASE_DIR)
+        os.chdir(original_dir)
         
         if not self.backend_ready:
             logger.warning("⚠️  Backend başlatılamadı, devam ediliyor...")
