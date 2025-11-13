@@ -188,7 +188,9 @@ class SmartCabinApp:
                 logger.error(f"❌ Frontend paket yükleme hatası: {e}")
                 logger.error("\n💡 Manuel yükleme için Command Prompt'ta:")
                 logger.error(f"   cd {FRONTEND_DIR}")
-                logger.error("   npm install")
+                logger.error("   npm install --legacy-peer-deps")
+                logger.error("\nVeya:")
+                logger.error("   npm install --force")
                 os.chdir(original_dir)
                 return False
         else:
