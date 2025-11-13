@@ -111,22 +111,48 @@ class SmartCabinApp:
         """Frontend için Node.js paketlerini kontrol et"""
         logger.info("📦 Node.js paketleri kontrol ediliyor...")
         
+        # Node.js kurulu mu kontrol et
+        try:
+            subprocess.run(["node", "--version"], capture_output=True, check=True)
+        except:
+            logger.error("❌ Node.js bulunamadı!")
+            logger.error("   Node.js kurmanız gerekiyor:")
+            logger.error("   1. https://nodejs.org/ adresini ziyaret edin")
+            logger.error("   2. LTS versiyonunu indirin ve kurun")
+            logger.error("   3. Bilgisayarı yeniden başlatın")
+            logger.error("   4. Uygulamayı tekrar çalıştırın")
+            return False
+        
         node_modules = FRONTEND_DIR / "node_modules"
         if not node_modules.exists():
             logger.info("📥 Frontend paketleri yükleniyor (ilk kez - birkaç dakika sürebilir)...")
-            os.chdir(FRONTEND_DIR)
             
-            # Önce yarn var mı kontrol et
             try:
-                subprocess.run(["yarn", "--version"], capture_output=True, check=True)
-                subprocess.run(["yarn", "install"], check=True)
-            except:
-                # Yarn yoksa npm kullan
-                logger.info("Yarn bulunamadı, npm kullanılıyor...")
-                subprocess.run(["npm", "install"], check=True)
-            
-            os.chdir(BASE_DIR)
-            logger.info("✅ Frontend paketleri yüklendi")
+                os.chdir(FRONTEND_DIR)
+                
+                # Önce yarn var mı kontrol et
+                try:
+                    subprocess.run(["yarn", "--version"], capture_output=True, check=True, timeout=5)
+                    logger.info("Yarn ile paketler yükleniyor...")
+                    subprocess.run(["yarn", "install"], check=True, timeout=600)
+                except:
+                    # Yarn yoksa npm kullan
+                    logger.info("Yarn bulunamadı, npm kullanılıyor...")
+                    try:
+                        subprocess.run(["npm", "install"], check=True, timeout=600)
+                    except Exception as npm_error:
+                        logger.error(f"❌ npm ile yükleme başarısız: {npm_error}")
+                        logger.error("   Manuel yükleme için:")
+                        logger.error(f"   cd {FRONTEND_DIR}")
+                        logger.error("   npm install")
+                        return False
+                
+                os.chdir(BASE_DIR)
+                logger.info("✅ Frontend paketleri yüklendi")
+            except Exception as e:
+                logger.error(f"❌ Frontend paket yükleme hatası: {e}")
+                os.chdir(BASE_DIR)
+                return False
         else:
             logger.info("✅ Frontend paketleri mevcut")
         
