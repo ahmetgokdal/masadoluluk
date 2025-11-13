@@ -229,15 +229,34 @@ CORS_ORIGINS=*
         
         if not seed_flag.exists():
             logger.info("📊 Veritabanı ilk kez dolduruluyor...")
+            
+            # Environment variables'ı set et
+            data_path = str(DATA_DIR.absolute()).replace('\\', '/')
+            os.environ['MONGO_URL'] = f"mongita:///{data_path}/cabin_db"
+            os.environ['DB_NAME'] = "smart_cabin_db"
+            os.environ['CORS_ORIGINS'] = "*"
+            
+            original_dir = os.getcwd()
             os.chdir(BACKEND_DIR)
             try:
-                subprocess.run([sys.executable, "seed_data.py"], check=True)
-                seed_flag.touch()
-                logger.info("✅ Veritabanı dolduruldu")
+                result = subprocess.run(
+                    [sys.executable, "seed_data.py"],
+                    capture_output=True,
+                    text=True,
+                    timeout=60
+                )
+                if result.returncode == 0:
+                    seed_flag.touch()
+                    logger.info("✅ Veritabanı dolduruldu")
+                else:
+                    logger.warning(f"⚠️  Seed uyarısı: {result.stderr}")
+                    logger.info("Devam ediliyor...")
+            except subprocess.TimeoutExpired:
+                logger.warning("⚠️  Seed zaman aşımı (devam ediliyor)")
             except Exception as e:
                 logger.warning(f"⚠️  Seed hatası (devam ediliyor): {e}")
             finally:
-                os.chdir(BASE_DIR)
+                os.chdir(original_dir)
         else:
             logger.info("✅ Veritabanı mevcut")
         
