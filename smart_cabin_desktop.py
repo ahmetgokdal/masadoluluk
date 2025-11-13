@@ -69,6 +69,8 @@ class SmartCabinApp:
                     logger.info("✅ Tüm Python paketleri hazır")
                 else:
                     logger.warning(f"⚠️  Bazı paketler yüklenemedi: {result.stderr}")
+                    logger.info("💡 Python paketlerini manuel yüklemek için:")
+                    logger.info(f"   pip install -r {requirements_file} --user")
             except subprocess.TimeoutExpired:
                 logger.warning("⚠️  Paket yükleme zaman aşımına uğradı")
             except Exception as e:
