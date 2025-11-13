@@ -331,7 +331,7 @@ BROWSER=none
             except:
                 time.sleep(1)
         
-        os.chdir(BASE_DIR)
+        os.chdir(original_dir)
         
         if not self.frontend_ready:
             logger.warning("⚠️  Frontend başlatılamadı")
