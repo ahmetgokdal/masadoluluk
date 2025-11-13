@@ -155,7 +155,7 @@ class SmartCabinApp:
                     result = subprocess.run(
                         "yarn install",
                         shell=True,
-                        timeout=600,
+                        timeout=900,  # 15 dakika (ilk yükleme için)
                         capture_output=True,
                         text=True
                     )
