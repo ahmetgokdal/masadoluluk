@@ -140,10 +140,10 @@ def get_database():
             db = AsyncMongitaDatabase(raw_db)
             print(f"[OK] Mongita (file-based) connected: {db_path}/{db_name}")
         except ImportError:
-            print("⚠️  Mongita bulunamadı, MongoDB'ye geçiliyor...")
+            print("[WARNING] Mongita not found, falling back to MongoDB...")
             client = AsyncIOMotorClient('mongodb://localhost:27017')
             db = client[db_name]
-            print(f"✅ MongoDB bağlantısı (fallback): mongodb://localhost:27017/{db_name}")
+            print(f"[OK] MongoDB connection (fallback): mongodb://localhost:27017/{db_name}")
     else:
         # Motor - async MongoDB
         client = AsyncIOMotorClient(mongo_url)
