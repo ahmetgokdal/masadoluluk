@@ -266,6 +266,13 @@ CORS_ORIGINS=*
         """Backend sunucusunu başlat"""
         logger.info("🔧 Backend başlatılıyor...")
         
+        # Environment variables'ı set et
+        data_path = str(DATA_DIR.absolute()).replace('\\', '/')
+        os.environ['MONGO_URL'] = f"mongita:///{data_path}/cabin_db"
+        os.environ['DB_NAME'] = "smart_cabin_db"
+        os.environ['CORS_ORIGINS'] = "*"
+        
+        original_dir = os.getcwd()
         os.chdir(BACKEND_DIR)
         
         # Uvicorn'u thread içinde çalıştır
