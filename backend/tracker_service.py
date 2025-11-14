@@ -169,12 +169,14 @@ class TrackerService:
                 # Check for alerts after each cabin
                 await self.check_and_create_alerts(cabin)
                 
-                # Wait 5 seconds before next update (faster response)
-                await asyncio.sleep(5)
+                # Wait before next check (optimized: 10 seconds instead of 5)
+                await asyncio.sleep(10)
                 
             except Exception as e:
                 logger.error(f"Error in tracking loop: {e}")
-                await asyncio.sleep(5)
+                
+            # Wait before next check (optimized: 10 seconds instead of 5)
+            await asyncio.sleep(10)
     
     async def check_and_create_alerts(self, cabin):
         """Check cabin status and create alerts if needed"""
