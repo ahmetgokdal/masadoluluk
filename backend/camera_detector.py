@@ -130,10 +130,23 @@ class CameraDetector:
         brightness = self.detect_brightness(frame)
         
         # Decision logic: Active if motion detected OR lights are bright
-        is_active = motion_detected or brightness > 0.4
+        is_active = motion_detected or brightness > self.brightness_threshold
         
         # Combined confidence
         confidence = max(motion_confidence, brightness)
+        
+        # Smoothing: Use detection history to avoid flickering
+        if cabin_no not in self.detection_history:
+            self.detection_history[cabin_no] = []
+        
+        # Keep last 3 detections
+        self.detection_history[cabin_no].append(is_active)
+        if len(self.detection_history[cabin_no]) > 3:
+            self.detection_history[cabin_no].pop(0)
+        
+        # Smooth decision: Active if 2 out of last 3 detections were active
+        active_count = sum(self.detection_history[cabin_no])
+        is_active_smoothed = active_count >= 2 if len(self.detection_history[cabin_no]) >= 2 else is_active
         
         return {
             'is_active': is_active,
