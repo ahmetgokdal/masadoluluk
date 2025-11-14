@@ -500,9 +500,29 @@ async def add_camera(data: CabinCreate, current_user: User = Depends(get_current
     await db.cabins.insert_one(cabin.dict(by_alias=True))
     return cabin
 
+@api_router.put("/settings/cameras/{cabin_no}", response_model=Cabin)
+async def update_camera(cabin_no: int, data: CabinCreate, current_user: User = Depends(get_current_user)):
+    """Update camera URL for existing cabin."""
+    cabin = await db.cabins.find_one({"cabin_no": cabin_no})
+    if not cabin:
+        raise HTTPException(status_code=404, detail="Cabin not found")
+    
+    update_data = {
+        'camera_url': data.camera_url,
+        'updated_at': datetime.now(timezone.utc)
+    }
+    
+    await db.cabins.update_one(
+        {"cabin_no": cabin_no},
+        {"$set": update_data}
+    )
+    
+    updated_cabin = await db.cabins.find_one({"cabin_no": cabin_no})
+    return Cabin(**updated_cabin)
+
 @api_router.delete("/settings/cameras/{cabin_no}")
 async def remove_camera(cabin_no: int, current_user: User = Depends(get_current_user)):
-    """Remove camera."""
+    """Remove camera and reset cabin."""
     result = await db.cabins.delete_one({"cabin_no": cabin_no})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Cabin not found")
