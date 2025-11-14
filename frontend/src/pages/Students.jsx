@@ -216,21 +216,29 @@ const Students = () => {
                         <td className="py-4 px-4">
                           <span className="font-semibold text-gray-800">Kabin {cabin.cabin_no}</span>
                         </td>
-                        <td className="py-4 px-4 text-gray-700">{cabin.student_id}</td>
+                        <td className="py-4 px-4 text-gray-700">
+                          {cabin.student_id || <span className="text-gray-400 italic">-</span>}
+                        </td>
                         <td className="py-4 px-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                              {cabin.student_name.charAt(0)}
+                          {cabin.student_name ? (
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                {cabin.student_name.charAt(0)}
+                              </div>
+                              <span className="font-medium text-gray-800">{cabin.student_name}</span>
                             </div>
-                            <span className="font-medium text-gray-800">{cabin.student_name}</span>
-                          </div>
+                          ) : (
+                            <Badge className="bg-gray-100 text-gray-500 border-0">
+                              Atama Yok
+                            </Badge>
+                          )}
                         </td>
                         <td className="py-4 px-4">{getStatusBadge(cabin.status)}</td>
                         <td className="py-4 px-4 font-semibold text-blue-600">
-                          {formatDuration(cabin.daily_total)}
+                          {cabin.student_name ? formatDuration(cabin.daily_total || 0) : <span className="text-gray-400">-</span>}
                         </td>
                         <td className="py-4 px-4 font-semibold text-purple-600">
-                          {formatDuration(cabin.weekly_total)}
+                          {cabin.student_name ? formatDuration(cabin.weekly_total || 0) : <span className="text-gray-400">-</span>}
                         </td>
                         <td className="py-4 px-4">
                           <div className="flex items-center justify-end gap-2">
