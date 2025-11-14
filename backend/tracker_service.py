@@ -124,41 +124,44 @@ class TrackerService:
                     }
                     
                     if new_status == 'active':
-                            if not cabin.get('current_session_start'):
-                                update_data['current_session_start'] = datetime.now(timezone.utc)
-                                update_data['current_session_duration'] = 0
-                            else:
-                                # Calculate real duration from start time
-                                start = cabin.get('current_session_start')
-                                if start.tzinfo is None:
-                                    start = start.replace(tzinfo=timezone.utc)
-                                duration = int((datetime.now(timezone.utc) - start).total_seconds())
-                                update_data['current_session_duration'] = duration
-                        else:
-                            # End session if moving from active to other
-                            if cabin.get('status') == 'active' and cabin.get('current_session_start'):
-                                duration = cabin.get('current_session_duration', 0)
-                                if duration > 60:  # Minimum 1 minute
-                                    # Create session record
-                                    session = {
-                                        'cabin_no': cabin['cabin_no'],
-                                        'student_id': cabin.get('student_id'),
-                                        'student_name': cabin.get('student_name'),
-                                        'start_time': cabin.get('current_session_start'),
-                                        'end_time': datetime.now(timezone.utc),
-                                        'duration': duration,
-                                        'detection_method': 'tracking',
-                                        'created_at': datetime.now(timezone.utc)
-                                    }
-                                    await db.sessions.insert_one(session)
-                            
-                            update_data['current_session_start'] = None
+                        if not cabin.get('current_session_start'):
+                            # Start new session
+                            update_data['current_session_start'] = datetime.now(timezone.utc)
                             update_data['current_session_duration'] = 0
+                        else:
+                            # Calculate real duration from start time
+                            start = cabin.get('current_session_start')
+                            if start.tzinfo is None:
+                                start = start.replace(tzinfo=timezone.utc)
+                            duration = int((datetime.now(timezone.utc) - start).total_seconds())
+                            update_data['current_session_duration'] = duration
+                    else:
+                        # End session if moving from active to other
+                        if cabin.get('status') == 'active' and cabin.get('current_session_start'):
+                            duration = cabin.get('current_session_duration', 0)
+                            if duration > 60:  # Minimum 1 minute
+                                # Create session record
+                                session = {
+                                    '_id': f"session_{cabin['cabin_no']}_{int(datetime.now(timezone.utc).timestamp())}",
+                                    'cabin_no': cabin['cabin_no'],
+                                    'student_id': cabin.get('student_id'),
+                                    'student_name': cabin.get('student_name'),
+                                    'start_time': cabin.get('current_session_start'),
+                                    'end_time': datetime.now(timezone.utc),
+                                    'duration': duration,
+                                    'detection_method': 'camera_tracking',
+                                    'created_at': datetime.now(timezone.utc)
+                                }
+                                await db.sessions.insert_one(session)
                         
-                        await db.cabins.update_one(
-                            {'_id': cabin['_id']},
-                            {'$set': update_data}
-                        )
+                        update_data['current_session_start'] = None
+                        update_data['current_session_duration'] = 0
+                    
+                    # Update cabin in database
+                    await db.cabins.update_one(
+                        {'_id': cabin['_id']},
+                        {'$set': update_data}
+                    )
                         
                         # Broadcast update via WebSocket
                         await self.broadcast_cabin_update(cabin['cabin_no'])
