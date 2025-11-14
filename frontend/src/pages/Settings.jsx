@@ -83,8 +83,22 @@ const Settings = () => {
     }
   };
 
+  const handleUpdateCamera = async (cabinNo, newUrl) => {
+    try {
+      await api.put(`/settings/cameras/${cabinNo}`, {
+        cabin_no: cabinNo,
+        camera_url: newUrl
+      });
+      fetchSettings();
+      alert('Kamera güncellendi!');
+    } catch (error) {
+      console.error('Error updating camera:', error);
+      alert('Güncelleme başarısız.');
+    }
+  };
+
   const handleRemoveCamera = async (cabinNo) => {
-    if (!window.confirm('Kamerayı kaldırmak istediğinizden emin misiniz?')) {
+    if (!window.confirm(`Kabin ${cabinNo} kamerasını kaldırmak istediğinizden emin misiniz?\n\nDikkat: Kabin ve tüm ilişkili veriler silinecektir.`)) {
       return;
     }
     try {
