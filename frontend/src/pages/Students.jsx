@@ -24,7 +24,8 @@ const Students = () => {
 
   const fetchStudents = async () => {
     try {
-      const response = await api.students.getAll();
+      // Get all cabins (both assigned and unassigned)
+      const response = await api.cabins.getAll();
       setAssignedCabins(response.data);
       setLoading(false);
     } catch (error) {
