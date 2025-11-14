@@ -371,6 +371,19 @@ const Settings = () => {
                       Test
                     </Button>
                     <Button 
+                      onClick={() => {
+                        const newUrl = prompt('Yeni kamera URL girin:', camera.camera_url);
+                        if (newUrl && newUrl.trim() && newUrl !== camera.camera_url) {
+                          handleUpdateCamera(camera.cabin_no, newUrl.trim());
+                        }
+                      }}
+                      size="sm" 
+                      variant="outline" 
+                      className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                    >
+                      <Save className="h-4 w-4" />
+                    </Button>
+                    <Button 
                       onClick={() => handleRemoveCamera(camera.cabin_no)}
                       size="sm" 
                       variant="outline" 
