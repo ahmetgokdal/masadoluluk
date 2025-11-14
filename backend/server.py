@@ -288,6 +288,26 @@ async def get_reports(current_user: User = Depends(get_current_user)):
     reports = await db.reports.find().sort("created_at", -1).to_list(100)
     return [Report(**report) for report in reports]
 
+@api_router.get("/reports/download/{report_id}")
+async def download_report(report_id: str, current_user: User = Depends(get_current_user)):
+    """Download PDF report file."""
+    from fastapi.responses import FileResponse
+    import os
+    
+    report = await db.reports.find_one({"_id": report_id})
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+    
+    file_path = report.get('file_path')
+    if not file_path or not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Report file not found")
+    
+    return FileResponse(
+        file_path,
+        media_type='application/pdf',
+        filename=report.get('filename', 'report.pdf')
+    )
+
 @api_router.post("/reports/generate")
 async def generate_report(data: ReportGenerate, current_user: User = Depends(get_current_user)):
     """Generate new report with modern PDF from real session data."""
