@@ -14,9 +14,12 @@ class CameraDetector:
     """Detect cabin occupancy from camera feed"""
     
     def __init__(self):
-        self.motion_threshold = 25  # Motion sensitivity
-        self.min_area = 500  # Minimum motion area in pixels
+        # Optimized parameters for more stable detection
+        self.motion_threshold = 40  # Motion sensitivity (higher = less sensitive)
+        self.min_area = 2000  # Minimum motion area in pixels (larger movements only)
+        self.brightness_threshold = 0.45  # Brightness threshold for "lights on"
         self.previous_frames = {}  # Store previous frames for each cabin
+        self.detection_history = {}  # Store detection history for smoothing
         
     def fetch_image(self, camera_url: str, timeout: int = 3):
         """Fetch image from ESP32-CAM"""
