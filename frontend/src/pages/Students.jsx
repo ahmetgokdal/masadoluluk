@@ -34,11 +34,16 @@ const Students = () => {
     }
   };
   
-  const filteredCabins = assignedCabins.filter(cabin =>
-    cabin.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cabin.student_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cabin.cabin_no.toString().includes(searchTerm)
-  );
+  const filteredCabins = assignedCabins.filter(cabin => {
+    const searchLower = searchTerm.toLowerCase();
+    const studentName = cabin.student_name || '';
+    const studentId = cabin.student_id || '';
+    
+    return studentName.toLowerCase().includes(searchLower) ||
+           studentId.toLowerCase().includes(searchLower) ||
+           cabin.cabin_no.toString().includes(searchTerm) ||
+           (searchTerm === '' && !cabin.student_name); // Show unassigned if no search
+  });
 
   const handleAssign = (cabin) => {
     setSelectedCabin(cabin);
