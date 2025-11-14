@@ -111,6 +111,29 @@ const Settings = () => {
     }
   };
 
+  const handleResetAllCabins = async () => {
+    const confirmText = 'TÜM KABİNLERİ SİL';
+    const userInput = prompt(
+      `⚠️ UYARI: Bu işlem TÜM kabinleri, oturumları ve uyarıları silecektir!\n\n` +
+      `Bu işlem GERİ ALINAMAZ!\n\n` +
+      `Devam etmek için "${confirmText}" yazın:`
+    );
+    
+    if (userInput !== confirmText) {
+      alert('İşlem iptal edildi.');
+      return;
+    }
+    
+    try {
+      const response = await api.post('/settings/reset-all-cabins');
+      alert(`✅ ${response.data.deleted.cabins} kabin ve ${response.data.deleted.sessions} oturum silindi!`);
+      fetchSettings();
+    } catch (error) {
+      console.error('Error resetting cabins:', error);
+      alert('İşlem başarısız: ' + (error.response?.data?.detail || error.message));
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
