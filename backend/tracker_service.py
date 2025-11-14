@@ -113,16 +113,17 @@ class TrackerService:
                             new_status = 'long_break'
                         
                     except Exception as e:
-                        logger.error(f"Detection error for cabin {cabin['cabin_no']}: {e}")
+                        logger.error(f"Detection error for cabin {cabin.get('cabin_no', 'unknown')}: {e}")
                         new_status = cabin.get('status', 'idle')  # Keep current status on error
-                        
-                        update_data = {
-                            'status': new_status,
-                            'last_activity': datetime.now(timezone.utc),
-                            'updated_at': datetime.now(timezone.utc)
-                        }
-                        
-                        if new_status == 'active':
+                    
+                    # Update cabin data (moved outside try-except to fix scope issue)
+                    update_data = {
+                        'status': new_status,
+                        'last_activity': datetime.now(timezone.utc),
+                        'updated_at': datetime.now(timezone.utc)
+                    }
+                    
+                    if new_status == 'active':
                             if not cabin.get('current_session_start'):
                                 update_data['current_session_start'] = datetime.now(timezone.utc)
                                 update_data['current_session_duration'] = 0
