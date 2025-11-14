@@ -110,7 +110,7 @@ const Students = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Toplam Öğrenci</p>
+                  <p className="text-sm text-gray-600 mb-1">Toplam Kabin</p>
                   <p className="text-3xl font-bold text-blue-600">{assignedCabins.length}</p>
                 </div>
                 <User className="h-10 w-10 text-blue-500" />
@@ -122,9 +122,9 @@ const Students = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Aktif Öğrenci</p>
+                  <p className="text-sm text-gray-600 mb-1">Atanmış Kabin</p>
                   <p className="text-3xl font-bold text-green-600">
-                    {assignedCabins.filter(c => c.status === 'active').length}
+                    {assignedCabins.filter(c => c.student_name).length}
                   </p>
                 </div>
                 <User className="h-10 w-10 text-green-500" />
@@ -136,8 +136,10 @@ const Students = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Ortalama Günlük</p>
-                  <p className="text-2xl font-bold text-orange-600">4.5 saat</p>
+                  <p className="text-sm text-gray-600 mb-1">Boş Kabin</p>
+                  <p className="text-3xl font-bold text-orange-600">
+                    {assignedCabins.filter(c => !c.student_name).length}
+                  </p>
                 </div>
                 <User className="h-10 w-10 text-orange-500" />
               </div>
@@ -148,8 +150,10 @@ const Students = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Ortalama Haftalık</p>
-                  <p className="text-2xl font-bold text-purple-600">22.3 saat</p>
+                  <p className="text-sm text-gray-600 mb-1">Aktif Çalışan</p>
+                  <p className="text-3xl font-bold text-purple-600">
+                    {assignedCabins.filter(c => c.status === 'active').length}
+                  </p>
                 </div>
                 <User className="h-10 w-10 text-purple-500" />
               </div>
