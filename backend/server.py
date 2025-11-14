@@ -527,7 +527,28 @@ async def remove_camera(cabin_no: int, current_user: User = Depends(get_current_
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Cabin not found")
     
+    # Also remove related sessions
+    await db.sessions.delete_many({"cabin_no": cabin_no})
+    
     return {"message": "Camera removed successfully"}
+
+@api_router.post("/settings/reset-all-cabins")
+async def reset_all_cabins(current_user: User = Depends(get_current_user)):
+    """DANGER: Remove all cabins and sessions. Use to clean seed data."""
+    cabin_count = await db.cabins.count_documents({})
+    session_count = await db.sessions.count_documents({})
+    
+    await db.cabins.delete_many({})
+    await db.sessions.delete_many({})
+    await db.alerts.delete_many({})
+    
+    return {
+        "message": "All cabins and data removed",
+        "deleted": {
+            "cabins": cabin_count,
+            "sessions": session_count
+        }
+    }
 
 # ============= WebSocket Endpoint =============
 
