@@ -290,8 +290,10 @@ async def get_reports(current_user: User = Depends(get_current_user)):
 
 @api_router.post("/reports/generate")
 async def generate_report(data: ReportGenerate, current_user: User = Depends(get_current_user)):
-    """Generate new report from real session data."""
+    """Generate new report with modern PDF from real session data."""
     try:
+        from pdf_generator import pdf_generator
+        
         # Determine date range
         if data.type == 'daily':
             if data.date:
@@ -301,12 +303,14 @@ async def generate_report(data: ReportGenerate, current_user: User = Depends(get
             start_date = target_date
             end_date = target_date + timedelta(days=1)
             date_str = target_date.strftime("%Y-%m-%d")
+            title = f"Günlük Aktivite Raporu - {target_date.strftime('%d/%m/%Y')}"
         
         elif data.type == 'weekly':
             today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
             start_date = today - timedelta(days=7)
             end_date = today
             date_str = start_date.strftime("%Y-%m-%d")
+            title = "Haftalık Aktivite Raporu"
         
         else:  # monthly
             today = datetime.now(timezone.utc)
@@ -317,6 +321,7 @@ async def generate_report(data: ReportGenerate, current_user: User = Depends(get
             else:
                 end_date = today.replace(month=today.month + 1, day=1, hour=0, minute=0, second=0, microsecond=0)
             date_str = start_date.strftime("%Y-%m")
+            title = f"Aylık Aktivite Raporu - {start_date.strftime('%B %Y')}"
         
         # Query sessions
         query = {
@@ -328,10 +333,14 @@ async def generate_report(data: ReportGenerate, current_user: User = Depends(get
         
         sessions = await db.sessions.find(query).to_list(10000)
         
-        # Calculate totals
+        # Calculate totals and statistics
         total_seconds = sum(s.get('duration', 0) for s in sessions)
         total_hours = total_seconds / 3600
         sessions_count = len(sessions)
+        
+        # Calculate average and max session duration
+        avg_duration = total_seconds / sessions_count if sessions_count > 0 else 0
+        max_duration = max([s.get('duration', 0) for s in sessions]) if sessions else 0
         
         # Get student name if cabin specific
         student_name = "Tüm Öğrenciler"
@@ -340,9 +349,53 @@ async def generate_report(data: ReportGenerate, current_user: User = Depends(get
             if cabin and cabin.get('student_name'):
                 student_name = cabin['student_name']
         
-        # Create report entry
-        filename = f"report_{data.type}_{date_str}_cabin{data.cabin_no if data.cabin_no else 'all'}.pdf"
+        # Prepare daily breakdown for chart
+        daily_breakdown = {
+            'labels': [],
+            'values': []
+        }
         
+        # Calculate daily totals
+        daily_totals = {}
+        for session in sessions:
+            start_time = session.get('start_time')
+            if start_time:
+                day_key = start_time.strftime('%d/%m')
+                daily_totals[day_key] = daily_totals.get(day_key, 0) + session.get('duration', 0) / 3600
+        
+        # Sort by date and prepare chart data
+        sorted_days = sorted(daily_totals.items())
+        daily_breakdown['labels'] = [day for day, _ in sorted_days[-7:]]  # Last 7 days
+        daily_breakdown['values'] = [round(hours, 1) for _, hours in sorted_days[-7:]]
+        
+        # Create report filename and path
+        filename = f"report_{data.type}_{date_str}_cabin{data.cabin_no if data.cabin_no else 'all'}.pdf"
+        reports_dir = Path(__file__).parent / "reports"
+        reports_dir.mkdir(exist_ok=True)
+        file_path = reports_dir / filename
+        
+        # Prepare PDF data
+        pdf_data = {
+            'type': data.type,
+            'title': title,
+            'period': f"{start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}",
+            'student_name': student_name if data.cabin_no else None,
+            'cabin_no': data.cabin_no,
+            'stats': {
+                'Toplam Çalışma Saati': f"{round(total_hours, 1)} saat",
+                'Toplam Oturum Sayısı': f"{sessions_count} oturum",
+                'Ortalama Oturum Süresi': f"{round(avg_duration / 60, 1)} dakika",
+                'En Uzun Oturum': f"{round(max_duration / 60, 1)} dakika",
+                'Günlük Ortalama': f"{round(total_hours / 7, 1)} saat" if data.type == 'weekly' else f"{round(total_hours / 30, 1)} saat"
+            },
+            'sessions': sessions,
+            'daily_breakdown': daily_breakdown if daily_breakdown['values'] else None
+        }
+        
+        # Generate PDF
+        pdf_generator.generate_report(pdf_data, str(file_path))
+        
+        # Create report entry
         report = Report(
             id=f"report_{uuid.uuid4().hex}",
             type=data.type,
@@ -352,13 +405,13 @@ async def generate_report(data: ReportGenerate, current_user: User = Depends(get
             total_hours=round(total_hours, 1),
             sessions_count=sessions_count,
             filename=filename,
-            file_path=f"/app/backend/reports/{filename}"
+            file_path=str(file_path)
         )
         
         await db.reports.insert_one(report.dict(by_alias=True))
         
         return {
-            "message": "Rapor başarıyla oluşturuldu",
+            "message": "Rapor başarıyla oluşturuldu (modern PDF ile)",
             "report": report.dict(),
             "summary": {
                 "period": f"{start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}",
@@ -370,6 +423,8 @@ async def generate_report(data: ReportGenerate, current_user: User = Depends(get
         
     except Exception as e:
         logger.error(f"Error generating report: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 # ============= Settings Endpoints =============
