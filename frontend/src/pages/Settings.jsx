@@ -306,13 +306,23 @@ const Settings = () => {
                 </div>
                 <CardTitle className="text-xl font-bold text-gray-800">Kamera Yapılandırması</CardTitle>
               </div>
-              <Button
-                onClick={() => setShowAddCamera(!showAddCamera)}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Kamera Ekle
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleResetAllCabins}
+                  className="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white"
+                  size="sm"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Tümünü Temizle
+                </Button>
+                <Button
+                  onClick={() => setShowAddCamera(!showAddCamera)}
+                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Yeni Kamera Ekle
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
