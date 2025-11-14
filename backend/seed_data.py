@@ -29,36 +29,18 @@ except ImportError:
     db = client[db_name]
 
 async def seed_cabins():
-    """Seed 50 cabins with camera URLs"""
-    print("Seeding cabins...")
+    """Seed empty database - NO pre-filled cabins (users add manually)"""
+    print("Checking cabins...")
     
-    # Clear existing cabins
-    await db.cabins.delete_many({})
+    # Check if cabins already exist
+    existing_count = await db.cabins.count_documents({})
     
-    cabins = []
-    statuses = ["active", "idle", "long_break", "empty"]
+    if existing_count > 0:
+        print(f"⚠️  {existing_count} kabins already exist - skipping seed")
+        return
     
-    for i in range(1, 51):
-        status = random.choice(statuses)
-        has_student = status != "empty"
-        
-        cabin = {
-            "_id": f"cabin_{i}",
-            "cabin_no": i,
-            "camera_url": f"http://192.168.3.{210 + (i // 10)}/capture",
-            "student_id": f"STU{str(i).zfill(3)}" if has_student else None,
-            "student_name": f"Öğrenci {i}" if has_student else None,
-            "status": status,
-            "current_session_start": datetime.now(timezone.utc) - timedelta(minutes=random.randint(10, 180)) if status == "active" else None,
-            "current_session_duration": random.randint(600, 7200) if status == "active" else 0,
-            "last_activity": datetime.now(timezone.utc) - timedelta(minutes=random.randint(1, 60)),
-            "created_at": datetime.now(timezone.utc),
-            "updated_at": datetime.now(timezone.utc)
-        }
-        cabins.append(cabin)
-    
-    await db.cabins.insert_many(cabins)
-    print(f"✅ Seeded {len(cabins)} cabins")
+    # Only create if database is completely empty
+    print("✅ No cabins found - database ready for manual setup")
 
 async def seed_sessions():
     """Seed session history"""
