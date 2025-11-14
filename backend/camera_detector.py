@@ -149,11 +149,12 @@ class CameraDetector:
         is_active_smoothed = active_count >= 2 if len(self.detection_history[cabin_no]) >= 2 else is_active
         
         return {
-            'is_active': is_active,
+            'is_active': is_active_smoothed,
             'confidence': confidence,
             'method': 'motion_detection' if motion_detected else 'brightness_detection',
             'brightness': brightness,
             'motion_detected': motion_detected,
+            'smoothed': is_active_smoothed != is_active,
             'timestamp': datetime.now(timezone.utc).isoformat()
         }
 
