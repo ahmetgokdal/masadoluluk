@@ -291,7 +291,6 @@ async def get_reports(current_user: User = Depends(get_current_user)):
 @api_router.get("/reports/download/{report_id}")
 async def download_report(report_id: str, current_user: User = Depends(get_current_user)):
     """Download PDF report file."""
-    from fastapi.responses import FileResponse
     import os
     
     report = await db.reports.find_one({"_id": report_id})
